@@ -2,7 +2,8 @@
 class borderland {
   constructor (  ){
     this.const = {
-      size: 1
+      grade: 1,
+      a: CELL_SIZE * 1
     };
     this.var = {
     };
@@ -13,7 +14,7 @@ class borderland {
   }
 
   init(){
-    this.data.isle = new isle( this.const.size );
+    this.data.isle = new isle( this.const.grade, this.const.a );
   }
 
   click( offsets ){

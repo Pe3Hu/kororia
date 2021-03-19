@@ -1,20 +1,22 @@
 //
 class isle {
-  constructor( size ){
+  constructor( grade, a ){
     this.const = {
-      n: ( size + 1 ) * 2 + 1,
-      m: ( size + 1 ) * 2 + 1,
-      size: size + 1,
-      a: CELL_SIZE * 0.5,
+      grade: grade,
+      size: grade * ( grade + 1 ) + 1,
+      a: a,
+      m: null,
       center: null
     };
     this.var = {
       current: {
-        domain: null
+        domain: 0,
+        foothold: 0
       }
     };
     this.array = {
-      domain: []
+      domain: [],
+      foothold: []
     };
     this.data = {
     };
@@ -45,16 +47,16 @@ class isle {
 
   init_domains(){
     //
-    for( let i = 0; i < this.const.n; i++ ){
+    for( let i = 0; i < this.const.m; i++ ){
       this.array.domain.push( [] );
 
       for( let j = 0; j < this.const.m; j++ ){
-        let index = i * this.const.m + j;
         let vec = createVector( this.const.r * 2 * j, this.const.a * 1.5 * i );
         if( i % 2 == 1 )
           vec.x += this.const.r;
 
-        this.array.domain[i].push( new domain( index, vec, this.const.a ) );
+        this.array.domain[i].push( new domain( this.var.current.domain, vec, this.const.a ) );
+        this.var.current.domain++;
       }
     }
 
@@ -64,6 +66,7 @@ class isle {
 
   init(){
     this.const.r = this.const.a / ( Math.tan( Math.PI / 6 ) * 2 );
+    this.const.m = ( this.const.size + 1 ) * 2 + 1;
 
     this.init_neighbors();
     this.init_domains();
@@ -87,7 +90,7 @@ class isle {
           let around = this.convert_grid( grid );
 
           if( !arounds.includes( around ) && this.check_border( grid ) ){
-            if( i == 0 )
+            if( i < this.const.grade )
               this.array.domain[grid.y][grid.x].flag.eye_of_the_storm = true;
 
             arounds.push( around );
@@ -95,11 +98,78 @@ class isle {
         }
       }
 
-      for( let i = 0; i < arounds.length; i++ ){
-        let grid = this.convert_index( arounds[i] );
+    let sorted = [];
 
-        this.array.domain[grid.y][grid.x].flag.visiable = true;
+    for( let i = 0; i < arounds.length; i++ ){
+      let grid = this.convert_index( arounds[i] );
+
+      this.array.domain[grid.y][grid.x].flag.visiable = true;
+      sorted.push( {
+        'domain': arounds[i]
+      } );
+    }
+
+    sorted = this.bubble_sort( sorted, 'domain' );
+    let domains = [];
+    let cols = this.const.size + 1;
+    let index = 0;
+    let cols_add = 1;
+
+    for( let i = 0; i < this.const.m; i++ ){
+      domains.push( [] );
+
+      for( let j = 0; j < cols; j++ ){
+        if( sorted.length > index )
+          domains[i].push( sorted[index]['domain'] );
+        index++;
       }
+
+      if( i == this.const.size )
+        cols_add = -1;
+
+      cols += cols_add;
+    }
+
+    for( let i = 0; i < domains.length; i++ ){
+      this.array.foothold.push( [] );
+
+      for( let j = 0; j < domains[i].length; j++ ){
+        let max_l = 2;
+
+        if( j == domains[i].length - 1 )
+          max_l = 3;
+
+        for( let l = 0; l < max_l; l++ ){
+          let index = ( this.array.neighbor[0].length - 1 + l ) % this.array.neighbor[0].length;
+          let grid = this.convert_index( domains[i][j] );
+          let domain = this.array.domain[grid.y][grid.x];
+          let center = domain.const.center.copy();
+          let shift = createVector(
+            Math.sin( Math.PI * 2 / domain.const.n * ( -index + domain.const.n / 2 ) ) * domain.const.a,
+            Math.cos( Math.PI * 2 / domain.const.n * ( -index + domain.const.n / 2 ) ) * domain.const.a );
+          center.add( shift );
+
+          this.array.foothold[i].push( new foothold( this.var.current.foothold, center.copy(), this.const.a ) );
+          this.var.current.foothold++;
+        }
+      }
+    }
+  }
+
+  bubble_sort( arr, key ){
+    for( let i = 0; i < arr.length - 1; i++ ){
+      let flag = false;
+
+      for( let j = 0; j < arr.length - 1 - i; j++ )
+        if( arr[j][key] > arr[j + 1][key] ){
+          [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+          flag = true;
+        }
+
+      if ( !flag ) break;
+    }
+
+    return arr;
   }
 
   //find the grid coordinates by index
@@ -121,7 +191,7 @@ class isle {
   }
 
   check_border( grid ){
-    let flag = ( grid.x >= this.const.m ) || ( grid.x < 0 ) || ( grid.y >= this.const.n ) || ( grid.y < 0 );
+    let flag = ( grid.x >= this.const.m ) || ( grid.x < 0 ) || ( grid.y >= this.const.m ) || ( grid.y < 0 );
 
     return !flag;
   }
@@ -140,5 +210,9 @@ class isle {
     for( let domains of this.array.domain )
       for( let domain of domains )
         domain.draw( offset );
+
+    for( let footholds of this.array.foothold )
+      for( let foothold of footholds )
+        foothold.draw( offset );
   }
 }

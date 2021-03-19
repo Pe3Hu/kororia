@@ -1,5 +1,5 @@
 //
-class domain {
+class foothold {
   constructor ( index, center, a ){
     this.const = {
       index: index,
@@ -8,30 +8,17 @@ class domain {
       a: a,
     };
     this.flag = {
-      visiable: false,
-      eye_of_the_storm: false,
-      core: false
+      visiable: true
     };
     this.array = {
-      vertex: [],
+      vertex: []
     };
     this.var = {
-      fontSize: FONT_SIZE,
       scale: 0.5
     };
     this.color = {
       bg: {
-        h: 0,
-        s: COLOR_MAX * 0.75,
-        l: COLOR_MAX * 0.5
-      },
-      eots: {
-        h: 210,
-        s: COLOR_MAX * 0.75,
-        l: COLOR_MAX * 0.5
-      },
-      core: {
-        h: 270,
+        h: 60,
         s: COLOR_MAX * 0.75,
         l: COLOR_MAX * 0.5
       }
@@ -63,11 +50,6 @@ class domain {
 
       noStroke();
       fill( this.color.bg.h, this.color.bg.s, this.color.bg.l );
-
-      if( this.flag.eye_of_the_storm )
-        fill( this.color.eots.h, this.color.eots.s, this.color.eots.l );
-      if( this.flag.core )
-        fill( this.color.core.h, this.color.core.s, this.color.core.l );
 
       for( let i = 0; i < this.array.vertex.length; i++ ){
         let ii = ( i + 1 ) % this.array.vertex.length;

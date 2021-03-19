@@ -56,7 +56,7 @@ class board {
 
     let layer = 0;
     let isle = this.array.layer[layer].data.isle;
-    let offset = createVector( CELL_SIZE / 2, CELL_SIZE /2  );
+    let offset = createVector( CELL_SIZE * 1.5 - isle.const.r, CELL_SIZE * 1.5  );
     //createVector( CELL_SIZE * Math.floor( this.const.grid.x / 2 ), CELL_SIZE * 2.5 );
     //offset.sub( isle.const.center.copy() );
     this.array.offset[layer].push( offset.copy() );
