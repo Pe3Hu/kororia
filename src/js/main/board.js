@@ -55,12 +55,15 @@ class board {
       this.array.offset.push( [] );
 
     let layer = 0;
-    this.array.offset[layer].push( createVector( CELL_SIZE * Math.floor( this.const.grid.x / 2 ), CELL_SIZE * 2.5 ) );
+    let isle = this.array.layer[layer].data.isle;
+    let offset = createVector( CELL_SIZE / 2, CELL_SIZE /2  );
+    //createVector( CELL_SIZE * Math.floor( this.const.grid.x / 2 ), CELL_SIZE * 2.5 );
+    //offset.sub( isle.const.center.copy() );
+    this.array.offset[layer].push( offset.copy() );
   }
 
   initLayers(){
-    this.array.layer.push( new debate() );
-    console.log( this.array.layer )
+    this.array.layer.push( new borderland() );
   }
 
   initBorders(){
@@ -70,30 +73,6 @@ class board {
     let offset = createVector( CELL_SIZE * ( CANVAS_GRID.x - 2.25 ), CELL_SIZE * 0.5 );
     let size = createVector( CELL_SIZE * 2, CELL_SIZE * ( this.var.menu.button + 1 ) );
     this.addBorder( layer, name, offset, size );
-
-    layer = 0;
-    let t = this.array.layer[layer].data.tribune;
-    this.array.offset[layer][0].x -= t.const.a * 1.5 * ( t.const.m / 2 - 0.5 );
-    name = 'tribune';
-    offset = this.array.offset[layer][0].copy();
-    offset.x -= t.const.a + this.const.a;
-    offset.y -= this.const.a + ( 1 - t.const.size % 2 ) * t.const.r;
-    size = createVector(
-      t.const.a * 1.5 * ( t.const.m + 1/3 ) + this.const.a * 2,
-      t.const.r * ( t.const.n * 2)  + this.const.a * 2 );
-    this.addBorder( layer, name, offset, size );
-
-    name = 'communityZoomOrigin';
-    offset = this.array.offset[layer][0].copy();
-    size = createVector();
-    offset.y += t.const.r * ( t.const.n * 2 - ( 1 - t.const.size % 2 ) ) + this.const.a * 2;
-    offset.x += t.const.a * 1.5 * ( t.const.m / 2 - 0.5 );
-    this.addBorder( layer, name, offset, size );
-    this.array.offset[layer].push( offset.copy() );
-
-    name = 'communityZoomShifted';
-    this.addBorder( layer, name, offset, size );
-    this.array.offset[layer].push( offset.copy() );
 
     this.updateBorders();
   }
@@ -115,9 +94,6 @@ class board {
 
     switch ( this.var.layer ) {
       case 0:
-        offsetID = 0;
-        this.array.border[offsetID].var.onScreen = true;
-        this.array.border[offsetID + 1].var.onScreen = true;
         break;
     }
   }
