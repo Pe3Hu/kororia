@@ -61,7 +61,6 @@ class isle {
     }
 
     this.domains_around_capital();
-    console.log( this.array.domain )
   }
 
   init(){
@@ -115,7 +114,7 @@ class isle {
     let index = 0;
     let cols_add = 1;
 
-    for( let i = 0; i < this.const.m; i++ ){
+    for( let i = 0; i < this.const.m - 2; i++ ){
       domains.push( [] );
 
       for( let j = 0; j < cols; j++ ){
@@ -140,20 +139,50 @@ class isle {
           max_l = 3;
 
         for( let l = 0; l < max_l; l++ ){
-          let index = ( this.array.neighbor[0].length - 1 + l ) % this.array.neighbor[0].length;
-          let grid = this.convert_index( domains[i][j] );
-          let domain = this.array.domain[grid.y][grid.x];
-          let center = domain.const.center.copy();
-          let shift = createVector(
-            Math.sin( Math.PI * 2 / domain.const.n * ( -index + domain.const.n / 2 ) ) * domain.const.a,
-            Math.cos( Math.PI * 2 / domain.const.n * ( -index + domain.const.n / 2 ) ) * domain.const.a );
-          center.add( shift );
+          let angle = ( this.array.neighbor[0].length - 2 + l ) % this.array.neighbor[0].length;
 
-          this.array.foothold[i].push( new foothold( this.var.current.foothold, center.copy(), this.const.a ) );
-          this.var.current.foothold++;
+          this.add_foothold( angle, domains[i][j] );
+        }
+
+        if( j == domains[i].length - 1 && i > ( domains.length - 1 ) / 2 ){
+          let angle = 1;
+          //&& i >= ( domains.length - 1 ) / 2
+          let ii = i - 1;
+          let jj = domains[ii].length - 1
+          this.add_foothold( angle, domains[ii][jj] );
         }
       }
+
+      if( i >= ( domains.length - 1 ) / 2 ){
+        let j = 0;
+        let angle = 3;
+        this.add_foothold( angle, domains[i][j] );
+      }
+
+      if( i == domains.length - 1 )
+        for( let j = 0; j < domains[i].length; j++ ){
+          let max_l = 2;
+
+          for( let l = max_l; l > 0; l-- ){
+            let angle = l;
+
+            this.add_foothold( angle, domains[i][j] );
+          }
+        }
     }
+  }
+
+  add_foothold( angle, index ){
+    let grid = this.convert_index( index );
+    let domain = this.array.domain[grid.y][grid.x];
+    let center = domain.const.center.copy();
+    let shift = createVector(
+      Math.sin( Math.PI * 2 / domain.const.n * ( -1-angle + domain.const.n / 2 ) ) * domain.const.a,
+      Math.cos( Math.PI * 2 / domain.const.n * ( -1-angle + domain.const.n / 2 ) ) * domain.const.a );
+    center.add( shift );
+
+    this.array.foothold[this.array.foothold.length - 1].push( new foothold( this.var.current.foothold, center.copy(), this.const.a ) );
+    this.var.current.foothold++;
   }
 
   bubble_sort( arr, key ){
