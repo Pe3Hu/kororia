@@ -29,6 +29,6 @@ class borderland {
   }
 
   draw( offsets ){
-    this.data.isle.draw( offsets[0] );
+    this.data.isle.draw( offsets[0].copy() );
   }
 }

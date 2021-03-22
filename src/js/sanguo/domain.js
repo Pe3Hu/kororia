@@ -14,24 +14,28 @@ class domain {
     };
     this.array = {
       vertex: [],
+      pathway: []
     };
     this.var = {
-      fontSize: FONT_SIZE,
-      scale: 0.5
+      font_size: FONT_SIZE,
+      scale: 0.5,
+      status: -1,
+      landed_estates: -1,
+      cluster: 0
     };
     this.color = {
       bg: {
-        h: 0,
-        s: COLOR_MAX * 0.75,
-        l: COLOR_MAX * 0.5
-      },
-      eots: {
         h: 210,
         s: COLOR_MAX * 0.75,
         l: COLOR_MAX * 0.5
       },
-      core: {
+      eots: {
         h: 270,
+        s: COLOR_MAX * 0.75,
+        l: COLOR_MAX * 0.5
+      },
+      core: {
+        h: 0,
         s: COLOR_MAX * 0.75,
         l: COLOR_MAX * 0.5
       }
@@ -54,9 +58,55 @@ class domain {
     this.const.r = this.const.a * this.var.scale / ( Math.tan( Math.PI / this.const.n ) * 2 );
 
     this.init_vertexs();
+    this.set_status( 0 );
   }
 
-  draw( offset ){
+  set_status( status ){
+    this.var.status = status;
+
+    switch ( status ) {
+      case 0:
+        this.flag.visiable = false;
+        this.flag.eye_of_the_storm = false;
+        this.flag.core = false;
+        this.var.landed_estates = 0;
+        break;
+      case 1:
+        this.flag.visiable = true;
+        break;
+      case 2:
+        this.flag.visiable = true;
+        this.flag.core = true;
+        break;
+      case 3:
+        this.flag.visiable = true;
+        this.flag.eye_of_the_storm = true;
+        break;
+    }
+  }
+
+  set_landed_estates( landed_estates ){
+    if( this.var.landed_estates == 0 )
+      this.var.landed_estates = landed_estates;
+    else{
+      console.log( this.var.landed_estates, landed_estates )
+      console.log( 'landed_estates error' )
+    }
+  }
+
+  add_pathway( pathway ){
+    let flag = pathway.array.domain.includes( this.const.index );
+    //console.log( pathway.array.domain, this.const.index, flag )
+
+    if( flag )
+      this.array.pathway.push( pathway.const.index );
+  }
+
+  check_free(){
+
+  }
+
+  draw( offset, layer ){
     if( this.flag.visiable ){
       let vec = offset.copy();
       vec.add( this.const.center );
@@ -79,7 +129,15 @@ class domain {
 
       noStroke();
       fill( 0 );
-      text( this.const.index, vec.x, vec.y + FONT_SIZE / 3 );
+      let txt = this.const.index;
+      if( layer == 3 ){
+        txt = this.var.landed_estates;
+
+        if( this.var.landed_estates == 0 )
+          txt += '_' + this.var.cluster;
+      }
+
+      text( txt, vec.x, vec.y + FONT_SIZE / 3 );
     }
   }
 }
