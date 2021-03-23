@@ -23,7 +23,8 @@ class isle {
       foothold: [],
       pathway: [],
       landed_estates: [],
-      association: []
+      association: [],
+      primary_alignment: []
     };
     this.data = {
     };
@@ -75,30 +76,30 @@ class isle {
 
     for( let p = 0; p < 2; p++ ){
       let centers = [];
-      let arrs = [];
+      let current_arrays = [];
       let d_max = null;
       let add_l = null;
 
       switch ( p ) {
         case 0:
-          arrs = this.array.domain;
+          current_arrays = this.array.domain;
           d_max = this.const.r * 2 * 1.1;
           add_l = this.const.m + 1;
           break;
         case 1:
-          arrs = this.array.foothold;
+          current_arrays = this.array.foothold;
           d_max = this.const.a * 1.1;
           let mid = this.array.foothold.length / 2;
           add_l = this.array.foothold[mid].length + 1;
           break;
       }
 
-      for( let arr of arrs )
-        for( let ar of arr )
-          if( ar.flag.visiable )
+      for( let current_array of current_arrays )
+        for( let current of current_array )
+          if( current.flag.visiable )
             centers.push( {
-              index: ar.const.index,
-              center: ar.const.center.copy()
+              index: current.const.index,
+              center: current.const.center.copy()
             } );
 
 
@@ -136,19 +137,21 @@ class isle {
         if( domain.flag.eye_of_the_storm ){
           this.add_landed_estates( domain );
           let landed_estates = this.array.landed_estates[this.array.landed_estates.length - 1];
-          this.increase_landed_estates( landed_estates );
+          this.increase_landed_estates( landed_estates, true );
 
         }
 
     for( let landed_estates of this.array.landed_estates )
       if( landed_estates.const.index > 1 )
-        this.increase_landed_estates( landed_estates );
+        this.increase_landed_estates( landed_estates, true );
+
+    this.primary_distribute();
   }
 
   init_associations(){
     //
     let cluster = 1;
-    this.array.association = [ [] ];
+    this.array.association = [];
 
     for( let domains of this.array.domain )
       for( let domain of domains )
@@ -200,8 +203,6 @@ class isle {
 
           cluster++;
         }
-
-    this.distribute_smaller_associations();
   }
 
   init(){
@@ -211,8 +212,8 @@ class isle {
     this.init_neighbors();
     this.init_domains();
     this.init_pathways();
-    this.init_landed_estates();
-    this.init_associations();
+    this.init_landed_estates();;
+      console.log( this.array.association );
   }
 
   domains_around_capital(){
@@ -328,7 +329,7 @@ class isle {
     }
   }
 
-  increase_landed_estates( landed_estates ){
+  increase_landed_estates( landed_estates, flag_add ){
     let neighbors = [];
 
     for( let domain of landed_estates.array.domain )
@@ -336,127 +337,269 @@ class isle {
         let neighbor_index = this.array.pathway[0][pathway_index].betray_neighbor( domain.const.index );
         let neighbor_grid = this.convert_index( neighbor_index );
         let neighbor_domain = this.array.domain[neighbor_grid.y][neighbor_grid.x];
+        let alredy_index = neighbors.indexOf( neighbor_index )
 
-        if( neighbor_domain.var.landed_estates == 0 && neighbor_domain.var.status == 1 )
+        if( neighbor_domain.var.landed_estates == 0 &&
+            neighbor_domain.var.status == 1 &&
+            alredy_index == -1 )
           neighbors.push( neighbor_index );
       }
-
-    if( neighbors.length > 0 ){
-      let rand = Math.floor( Math.random() * neighbors.length );
-      let neighbor_index = neighbors[rand];
-      let neighbor_grid = this.convert_index( neighbor_index );
-      let neighbor_domain = this.array.domain[neighbor_grid.y][neighbor_grid.x];
-      this.array.landed_estates[landed_estates.const.index].appropriate_domain( neighbor_domain );
-    }
+    if( flag_add )
+      if( neighbors.length > 0 ){
+        let rand = Math.floor( Math.random() * neighbors.length );
+        let neighbor_index = neighbors[rand];
+        let neighbor_grid = this.convert_index( neighbor_index );
+        let neighbor_domain = this.array.domain[neighbor_grid.y][neighbor_grid.x];
+        this.array.landed_estates[landed_estates.const.index].appropriate_domain( neighbor_domain );
+      }
+      else
+        console.log( 'increase_landed_estates error' )
     else
-      console.log( 'increase_landed_estates error' )
+      return neighbors;
   }
 
-  distribute_smaller_associations(){
-    console.log( this.array.association )
-    let norm = 4;
-    /*let surplus = [];
-    let depauperates = [];
+  primary_distribute(){
+    for( let i = 0; i < this.array.landed_estates.length - 2; i++ )
+      this.landed_estates_coverage();
 
-    for( let association of this.array.association ){
-        let remainder = association.length % norm;
-        surplus.push( remainder );
 
-        if( association.length < norm )
-          depauperates.push( association )
+    this.init_associations();
+    this.distances_between_associations();
+  }
+
+  landed_estates_coverage(){
+    this.array.primary_alignment = [];
+
+    for( let landed_estates of this.array.landed_estates ){
+      let flag = landed_estates.array.domain.length > 3;
+
+      this.array.primary_alignment.push( flag );
+    }
+
+    let options = [];
+
+    for( let landed_estates of this.array.landed_estates )
+      if( landed_estates.array.domain.length < 4 )
+        options.push( this.increase_landed_estates( landed_estates, false ) );
+      else{
+        options.push( [] );
+        this.array.primary_alignment[landed_estates.const.index] = true;
       }
 
-    let sum = 0;
-
-    for( let plus of surplus )
-      sum += plus;
-    console.log( sum, depauperates )
-
     let min = {
-      association: null,
-      length: Math.pow( this.const.m, 2)
-    };*/
+      i: null,
+      length: Math.pow( this.const.m, 2 )
+    };
 
-    let bad_arrays = [];
+    for( let i = 0; i < options.length; i++ )
+      if( options[i].length < min.length && options[i].length > 0 )
+        min = {
+          i: i,
+          length: options[i].length
+        };
 
-    for( let association of this.array.association )
-      if( association.length < norm && association.length > 0 ){
-        let landed_estatess = [];
-
-        for( let domain of association ){
-          let l_es = [];
-
-          for( let pathway_index of domain.array.pathway ){
-            let neighbor_index = this.array.pathway[0][pathway_index].betray_neighbor( domain.const.index );
-            let neighbor_grid = this.convert_index( neighbor_index );
-            let neighbor_domain = this.array.domain[neighbor_grid.y][neighbor_grid.x];
-            let le_index = l_es.indexOf( neighbor_domain.var.landed_estates )
-
-            if( neighbor_domain.var.landed_estates != 0 && le_index == -1 )
-              l_es.push( neighbor_domain.var.landed_estates );
-          }
-
-          landed_estatess.push( l_es );
-        }
-
-        bad_arrays.push( landed_estatess )
-    }
-    else
-      bad_arrays.push( [] );
-    console.log( bad_arrays )
-
-    let reset_associations = false;
-
-    for( let i = 0; i < bad_arrays.length; i++ ){
-      let singles = [];
-
-      for( let j = 0; j < bad_arrays[i].length; j++ )
-        if( bad_arrays[i][j].length == 1 )
-          singles.push( {
-            i: i,
-            j: j,
-            landed_estates: bad_arrays[i][j][0] } );
-
-      if( singles.length > 0 )
-        for( let single of singles ){
-          this.array.landed_estates[single.landed_estates].appropriate_domain( this.array.association[single.i][single.j] )
-          console.log( single.landed_estates );
-          reset_associations = true;
-        }
-    }
-
-    if( reset_associations )
+    if( min.i != null ){
       this.init_associations();
-    else{
-      let clusters = [];
+      let mins = [];
 
-      for( let i = 0; i < this.array.landed_estates.length; i++ )
-        clusters.push( {
-          'cluster': i,
-          'count': 0
-        } );
+      for( let option_index of options[min.i] ){
+        let option_grid = this.convert_index( option_index );
+        let option_domain = this.array.domain[option_grid.y][option_grid.x];
 
-      for( let i = 0; i < bad_arrays.length; i++ )
-        for( let j = 0; j < bad_arrays[i].length; j++ )
-          for( let cluster of bad_arrays[i][j] )
-            clusters[cluster].count++;
+        for( let association of this.array.association )
+          if( association.includes( option_domain ) )
+            mins.push( {
+              'domain': option_domain,
+              'length': association.length
+            } );
+      }
+      mins = this.bubble_sort( mins, 'length' );
 
-      this.bubble_sort( clusters, 'count' )
-      console.log( clusters )
-      let range = 0;
-      while( clusters[range].count == 0 && range < clusters.length - 1 )
-        range++;
-      clusters.splice( 0, range );
-
-      if( clusters[0].count == 0 )
-        clusters.splice( 0, 1 );
-
-      console.log( clusters );
-
-      /*for( let i = 0; i < bad_arrays.length; i++ )
-        for( let j = 0; j < bad_arrays[i].length; j++ )
-        console.log( bad_arrays[i][j] )*/
+      this.array.landed_estates[min.i].appropriate_domain( mins[0]['domain'] );
     }
+  }
+
+  distances_between_associations(){
+    let distances = [];
+    let l = this.array.association.length;
+
+    if( this.array.association.length > 1 )
+      for( let i = 0; i < l - 1; i++ )
+        for( let j = i + 1; j < l; j++ ){
+          let associations = [ i, j ];
+
+          if( this.array.association[i].length > this.array.association[j] )
+            associations = [ j, i ];
+
+          let obj = this.measure_distances_between( associations );
+          distances.push( obj );
+          //console.log( 'result',obj.begin.const.index, obj.end.const.index, obj.steps.length )
+        }
+
+    console.log( distances )
+    let links = [];
+
+    for( let i = 0; i < l; i++ ){
+      let link = [];
+
+      for( let j = 0; j < distances.length; j++ )
+        if( distances[j].begin_association == i || distances[j].end_association == i )
+          link.push( {
+            'distance_index': j,
+            'steps_length': distances[j].steps.length
+          } );
+
+        link = this.bubble_sort( link, 'steps_length' );
+
+        if( link.length > 2 )
+          link.splice( 2, link.length - 1 );
+
+        links.push( link )
+    }
+    console.log( links )
+    let distance_indexs = [];
+
+    for( let link of links )
+      for( let distance of link ){
+        let index = distance_indexs.indexOf( distance.distance_index );
+
+        if( index == -1 )
+          distance_indexs.push( distance.distance_index );
+      }
+
+    let chain = [];
+
+    for( let distance_index of distance_indexs )
+      chain.push( distances[distance_index] );
+
+    console.log( chain )
+    let min_charge = {
+      steps_length: Math.pow( this.const.m, 2 ),
+      chain_link: null
+    };
+
+    for( let chain_link of chain ){
+      let charge = false;
+
+      if( chain_link.begin_charge != 0 &&  chain_link.end_charge != 0 ){
+        if( chain_link.begin_charge == 2 &&
+            chain_link.end_charge == 2 )
+          charge = true;
+
+        /*if( Math.sign( chain_link.begin_charge ) == Math.sign( chain_link.end_charge ) * -1 &&
+            Math.min( chain_link.begin_charge, chain_link.end_charge ) == - 1 )*/
+
+        if( ( Math.abs( chain_link.begin_charge ) == 1 || Math.abs( chain_link.end_charge ) == 1 ) &&
+            chain_link.begin_charge != chain_link.end_charge )
+          charge = true;
+      }
+
+
+      if( charge && chain_link.steps.length < min_charge.steps_length )
+          min_charge = {
+            step: chain_link.steps.length,
+            chain_link: chain_link
+          }
+    }
+
+    console.log( 'association for immigration', min_charge.chain_link )
+    if( min_charge.chain_link == null )
+      console.log(chain )
+  }
+
+  measure_distances_between( associations ){
+    let begins = this.array.association[associations[0]];
+    let ends = this.array.association[associations[1]];
+    let result = {
+      steps: null,
+      begin: null,
+      end: null
+    };
+
+    for( let begin of begins ){
+      let begin_grid = this.convert_index( begin.const.index );
+
+      for( let end of ends ){
+        let end_grid = this.convert_index( end.const.index );
+        let steps = this.distance_between_domains( begin_grid, end_grid );
+        let flag = false;
+        //console.log( begin_grid.x, begin_grid.y, end_grid.x, end_grid.y, steps )
+
+        if( result.steps != null )
+          if( result.steps.length > steps.length )
+            flag = true;
+
+        if( result.steps == null )
+          flag = true;
+
+        if( flag )
+          result = {
+            steps: steps,
+            begin: begin,
+            end: end
+          }
+      }
+    }
+
+    let norm = 4;
+    let b_length = begins.length % norm;
+    if( b_length > norm / 2 )
+      b_length -= norm;
+    let e_length = ends.length % norm;
+    if( e_length > norm / 2 )
+      e_length -= norm;
+    result.begin_charge = b_length;
+    result.end_charge = e_length;
+
+    result.begin_association = associations[0];
+    result.end_association = associations[1];
+
+    return result;
+  }
+
+  distance_between_domains( begin, end ){
+    let current_grid = begin.copy();
+    let counter = 0;
+    let stopper = 50;
+    let current_d = current_grid.dist( end );
+    let steps = [];
+
+    while( current_d != 0 && counter < stopper ){
+      let parity = ( current_grid.y + 1 ) % 2;
+      let step = null;
+      let min_d = Math.pow( this.const.m, 2 );
+
+      for( let neighbor of this.array.neighbor[parity] ){
+        let next_grid = current_grid.copy();
+        next_grid.add( neighbor );
+
+        if( this.check_border( next_grid ) ){
+          let next_d = next_grid.dist( end );
+          let eots = this.array.domain[next_grid.y][next_grid.x].flag.eye_of_the_storm;
+
+          if( next_d < min_d && !eots ){
+            min_d = next_d;
+            step = neighbor.copy();
+          }
+        }
+      }
+
+      current_grid.add( step );
+      current_d = current_grid.dist( end );
+      steps.push( step );
+      counter++;
+    }
+
+    current_grid = begin.copy();
+    for( let step of steps ){
+      current_grid.add( step );
+    }
+
+  if( steps.length == 50 )
+    console.log( this.array.domain[begin.y][begin.x].const.index,
+     this.array.domain[current_grid.y][current_grid.x].const.index,
+     this.array.domain[end.y][end.x].const.index, steps )
+    return steps;
   }
 
   add_foothold( angle, index ){
