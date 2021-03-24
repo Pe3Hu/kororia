@@ -85,9 +85,11 @@ class domain {
     }
   }
 
-  set_landed_estates( landed_estates ){
-    if( this.var.landed_estates == 0 )
+  set_landed_estates( landed_estates, flag ){
+    if( this.var.landed_estates == 0 || flag == true || this.var.cluster != 0 ){
+      this.var.cluster = 0;
       this.var.landed_estates = landed_estates;
+    }
     else{
       console.log( this.var.landed_estates, landed_estates )
       console.log( 'landed_estates error' )
@@ -96,7 +98,7 @@ class domain {
 
   add_pathway( pathway ){
     let flag = pathway.array.domain.includes( this.const.index );
-    //console.log( pathway.array.domain, this.const.index, flag )
+    //console.log( pathway.array.domain, this.const.index)
 
     if( flag )
       this.array.pathway.push( pathway.const.index );
@@ -106,15 +108,18 @@ class domain {
 
   }
 
-  draw( offset, layer ){
+  draw( offset, layer, l ){
     if( this.flag.visiable ){
       let vec = offset.copy();
       vec.add( this.const.center );
 
       noStroke();
       fill( this.color.bg.h, this.color.bg.s, this.color.bg.l );
+      let hue = this.var.landed_estates * COLOR_MAX / l;
+      if( layer == 1 )
+        fill( hue, this.color.bg.s, this.color.bg.l );
 
-      if( this.flag.eye_of_the_storm )
+      if( this.flag.eye_of_the_storm && layer != 1 )
         fill( this.color.eots.h, this.color.eots.s, this.color.eots.l );
       if( this.flag.core )
         fill( this.color.core.h, this.color.core.s, this.color.core.l );
@@ -130,10 +135,13 @@ class domain {
       noStroke();
       fill( 0 );
       let txt = this.const.index;
+      if( layer == 1 && this.var.landed_estates != 0 )
+        txt += '_' + this.var.landed_estates;
+
       if( layer == 3 ){
         txt = this.var.landed_estates;
 
-        if( this.var.landed_estates == 0 )
+        if( this.var.landed_estates == 0 || layer == 1 )
           txt += '_' + this.var.cluster;
       }
 

@@ -1,11 +1,14 @@
 //
 class landed_estates {
-  constructor ( index, domain ){
+  constructor ( index, domain, isle ){
     this.const = {
       index
     };
     this.array = {
       domain: []
+    };
+    this.data = {
+      isle: isle
     };
 
     if( index != 0 )
@@ -15,5 +18,11 @@ class landed_estates {
   appropriate_domain( domain ){
     this.array.domain.push( domain );
     domain.set_landed_estates( this.const.index );
+  }
+
+  reject_domain( domain ){
+    let index = this.array.domain.indexOf( domain );
+    this.array.domain.splice( index, 1 );
+    domain.set_landed_estates( 0, true );
   }
 }

@@ -16,7 +16,7 @@ class pathway {
   betray_neighbor( domain ){
     let index = this.array.domain.indexOf( domain );
     let neighbor = this.array.domain.length - index - 1;
-    
+
     return this.array.domain[neighbor];
   }
 
