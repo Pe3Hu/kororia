@@ -1,6 +1,6 @@
 //
 class isle {
-  constructor( grade, a ){
+  constructor( grade, a, borderland ){
     this.const = {
       grade: grade,
       size: grade * ( grade + 1 ) + 1,
@@ -32,6 +32,7 @@ class isle {
       reseted: false
     };
     this.data = {
+      borderland: borderland
     };
 
     this.init();
@@ -362,7 +363,7 @@ class isle {
         this.array.landed_estates[landed_estates.const.index].appropriate_domain( neighbor_domain );
       }
       else
-        console.log( 'increase_landed_estates error' )
+        console.log( landed_estates.const.index, 'increase_landed_estates error' )
     else
       return neighbors;
   }
@@ -383,40 +384,25 @@ class isle {
       counter++;
     }
 
-    if( this.flag.multiplicity )
-      this.split_associations_into_equal_parts();
+    let reset = false;
 
-    if( counter == stopper ){
-      this.flag.reseted = true;
-      this.var = {
-        current: {
-          domain: 0,
-          foothold: 0,
-          pathway: 0,
-          landed_estates: 0,
-          layer: 1
-        }
-      };
-      this.array = {
-        domain: [],
-        foothold: [],
-        pathway: [ [], [] ],
-        landed_estates: [],
-        association: [],
-        primary_alignment: []
-      };
-      console.log( 'reset' )
-      this.init();
+    if( this.flag.multiplicity )
+     reset = this.split_associations_into_equal_parts();
+
+    if( counter == stopper || reset ){
+      console.log( 'reset after prepare_associations' )
+      this.data.borderland.flag.reset.isle = true;
     }
+    else
+      this.land_integrity_check();
   }
 
   split_associations_into_equal_parts(){
     //
-    console.log( this.array.association );
     let counter = 0;
     let stopper = 10;
 
-    while(  this.array.association.length > 0 && counter < stopper ){
+    while( this.array.association.length > 0 && counter < stopper ){
       for( let i = this.array.association.length - 1; i > -1; i-- ){
         let flag = this.array.association[i].length == this.const.landed_estates_size;
 
@@ -424,16 +410,24 @@ class isle {
           this.add_landed_estates( this.array.association[i][0] );
 
           for( let j = 1; j < this.array.association[i].length; j++ )
-            this.array.landed_estates[this.array.landed_estates.length - 1].appropriate_domain( this.array.association[i][j] )
+            this.array.landed_estates[this.array.landed_estates.length - 1].appropriate_domain( this.array.association[i][j], 2 )
 
           this.array.association.splice( i, 1 );
         }
-        else
-          this.split_association( i );
+        else{
+          let flag = this.split_association( i );
+
+          if( flag ){
+            return true;
+          }
+
+        }
       }
 
       counter++;
     }
+
+    return false;
   }
 
   landed_estates_coverage(){
@@ -510,10 +504,8 @@ class isle {
 
             let obj = this.measure_distances_between( associations );
             distances.push( obj );
-            //console.log( 'result',obj.begin.const.index, obj.end.const.index, obj.steps.length )
           }
 
-      //console.log( distances )
       let links = [];
 
       for( let i = 0; i < l; i++ ){
@@ -533,7 +525,7 @@ class isle {
 
           links.push( link )
       }
-      //console.log( links )
+
       let distance_indexs = [];
 
       for( let link of links )
@@ -549,7 +541,6 @@ class isle {
       for( let distance_index of distance_indexs )
         chain.push( distances[distance_index] );
 
-      //console.log( chain )
       let min_charge = {
         steps_length: Math.pow( this.const.m, 2 ),
         chain_link: null
@@ -576,29 +567,10 @@ class isle {
             }
       }
 
-      /*if( min_charge.chain_link == null )
-        for( let chain_link of chain ){
-          let charge = false;
-
-          if( ( Math.abs( chain_link.begin_charge ) == 1 || Math.abs( chain_link.end_charge ) == 1 ) &&
-              ( Math.abs( chain_link.begin_charge ) > 1 || Math.abs( chain_link.end_charge ) > 1 ) )
-            charge = true;
-
-          if( charge && chain_link.steps.length < min_charge.steps_length )
-              min_charge = {
-                step: chain_link.steps.length,
-                chain_link: chain_link
-              }
-        }*/
-
       if( min_charge.chain_link != null ){
-        //console.log( 'association for immigration', min_charge.chain_link.begin.const.index, min_charge.chain_link.end.const.index )
         this.shift_little_closer( min_charge.chain_link );
       }
     }
-    else
-      console.log( 'associations prepared' )
-
   }
 
   measure_distances_between( associations ){
@@ -617,7 +589,6 @@ class isle {
         let end_grid = this.convert_index( end.const.index );
         let steps = this.path_between_domains( begin_grid, end_grid, 0 );
         let flag = false;
-        //console.log( begin_grid.x, begin_grid.y, end_grid.x, end_grid.y, steps )
 
         if( result.steps != null )
           if( result.steps.length > steps.length )
@@ -694,7 +665,7 @@ class isle {
     }
 
   if( steps.length == 50 )
-    console.log( this.array.domain[begin.y][begin.x].const.index,
+    console.log( 'steps error', this.array.domain[begin.y][begin.x].const.index,
      this.array.domain[current_grid.y][current_grid.x].const.index,
      this.array.domain[end.y][end.x].const.index, steps )
     return steps;
@@ -727,7 +698,6 @@ class isle {
         }
       }
     }
-    //console.log( domains[0].const.index, domains[1].const.index, landed_estates_neighbors )
 
     let options = [];
     let from_domain = this.array.domain[begin_grid.y][begin_grid.x];
@@ -735,7 +705,6 @@ class isle {
     for( let l_e_n of landed_estates_neighbors ){
       let domains = this.array.landed_estates[l_e_n].array.domain;
       let replaceable_bones = this.build_extended_skeleton( domains, from_domain );
-      //console.log( replaceable_bones )
 
       let option = {
         path_length: Math.pow( this.const.m, 2 ),
@@ -794,7 +763,6 @@ class isle {
     if( extended != null )
       domains.push( extended );
 
-
     for( let domain of domains ){
       let bone = {
         begin: domain.const.index,
@@ -820,7 +788,7 @@ class isle {
 
           }
 
-          if( flag )
+          if( flag || this.array.domain[neighbor_grid.y][neighbor_grid.x] == extended )
             bone.ends.push( neighbor_index );
         }
       }
@@ -857,7 +825,30 @@ class isle {
 
       counter++;
     }
-    //console.log( bones )
+
+    //crutch for identifying a particular case of support
+    let flag_2 = true;
+    let flag_4 = false;
+    let bone_support = null;
+
+    for( let bone of bones ){
+      let l = bone.ends.length;
+
+
+      if( l == 4 )
+        if( !flag_4 ){
+          flag_4 = true;
+          bone_support = bone;
+        }
+        else
+          flag_2 = false;
+      else
+        if( l != 2 )
+          flag_2 = false;
+    }
+
+    if( flag_2 && flag_4 )
+      bone_support.is_support = true;
 
     for( let bone of bones )
       if( bone.is_support == false ){
@@ -875,6 +866,11 @@ class isle {
                 replaceable_bones.push( bone.begin );
         }
        }
+
+    //unexplored problem
+    /*if( replaceable_bones.length == 0 && extended == null )
+      replaceable_bones = bones;*/
+
     return replaceable_bones;
   }
 
@@ -894,28 +890,29 @@ class isle {
   }
 
   mark_as_support_2( index, bones ){
-    let end_index = bones[index].ends[0];
+    let ends = bones[index].ends;
 
-    for( let i = 0; i < bones.length; i++ )
-      if( bones[i].begin == end_index ){
-        let end_index = bones[i].ends.indexOf( bones[index].begin );
+    for( let i = 0; i < bones.length; i++ ){
+      if( bones[index].ends.includes( bones[i].begin ) &&
+          bones[i].ends.length > 1 &&
+          bones[i].is_support == false ){
         bones[i].is_support = true;
+
+        if( bones[i].ends.length == 2 )
+          this.mark_as_support_2( i, bones );
         return;
       }
+    }
+
   }
 
   cut_off_from_association( from, where ){
-    //, flag, cluster ){
     let from_association = from.var.cluster;
     let where_landed_estates = where.var.landed_estates;
 
     this.array.landed_estates[where_landed_estates].reject_domain( where );
     this.array.landed_estates[where_landed_estates].appropriate_domain( from );
 
-    /*if( flag ){
-      where.var.cluster = cluster;
-    }*/
-    //console.log( 'cut_off', from.const.index, where.const.index )
     this.init_associations();
   }
 
@@ -926,7 +923,6 @@ class isle {
       association.push( domain );
 
     let bones = this.build_extended_skeleton( association, null );
-    console.log( bones )
 
     if( bones.length > 0 ){
       let rand = Math.floor( Math.random() * bones.length )
@@ -935,38 +931,19 @@ class isle {
       let domain_index = association.indexOf( current_domain );
       association.splice( domain_index, 1 );
 
-      let new_landed_estates_domains = [ current_domain ];
-      let counter = 0;
-      let stopper = this.const.landed_estates_size + 1;
+      this.add_landed_estates( current_domain );
+      let landed_estates = this.array.landed_estates[this.array.landed_estates.length - 1]
 
-      while( new_landed_estates_domains.length < this.const.landed_estates_size && counter < stopper ){
-        for( let pathway_index of current_domain.array.pathway ){
-          let neighbor_index = this.array.pathway[0][pathway_index].betray_neighbor( current_domain.const.index );
-          let neighbor_grid = this.convert_index( neighbor_index );
+      for( let i = 1; i < this.const.landed_estates_size; i++ )
+        this.increase_landed_estates( landed_estates, true );
 
-          if( this.check_border( neighbor_grid ) ){
-            let neighbor_domain = this.array.domain[neighbor_grid.y][neighbor_grid.x];
-            let neighbor_domain_index = association.indexOf( neighbor_domain );
+      this.init_associations();
 
-            if( neighbor_domain_index != -1 ){
-              new_landed_estates_domains.push( neighbor_domain );
-              association.splice( neighbor_domain_index, 1 );
-
-              if( new_landed_estates_domains.length == this.const.landed_estates_size ){
-                  this.array.association.push( new_landed_estates_domains );
-                  return;
-              }
-            }
-          }
-        }
-
-        current_domain = new_landed_estates_domains[new_landed_estates_domains.length - 1];
-
-        stopper++;
-      }
-
-      this.array.association.push( new_landed_estates_domains );
     }
+    else
+      return true;
+
+    return false;
   }
 
   add_foothold( angle, index ){
@@ -1025,6 +1002,44 @@ class isle {
     let flag = ( grid.x >= this.const.m ) || ( grid.x < 0 ) || ( grid.y >= this.const.m ) || ( grid.y < 0 );
 
     return !flag;
+  }
+
+  land_integrity_check(){
+    let flag = true;
+
+    for( let landed_estates of this.array.landed_estates )
+      if( landed_estates.const.index > 1 ){
+        let count = 0;
+
+        for( let domain of landed_estates.array.domain ){
+          let neighbors = 0;
+
+          for( let pathway_index of domain.array.pathway ){
+            let neighbor_index = this.array.pathway[0][pathway_index].betray_neighbor( domain.const.index );
+            let neighbor_grid = this.convert_index( neighbor_index );
+            let neighbor_domain = this.array.domain[neighbor_grid.y][neighbor_grid.x];
+
+            if( this.check_border( neighbor_grid ) )
+              if( neighbor_domain.var.landed_estates == domain.var.landed_estates &&
+                  neighbor_domain.const.index != domain.const.index
+                )
+                neighbors++
+          }
+
+          if( neighbors == 1 )
+            count++;
+        }
+
+        flag = flag && count < 4;
+
+        if( count > 3 )
+          console.log(  'land_integrity_fail:', landed_estates.const.index )
+      }
+
+    if( !flag ){
+      console.log( 'land_integrity_check:', flag )
+      this.data.borderland.flag.reset.isle = true;
+    }
   }
 
   click(){

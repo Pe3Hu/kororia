@@ -5,7 +5,10 @@ class borderland {
       grade: 1,
       a: CELL_SIZE * 1
     };
-    this.var = {
+    this.flag = {
+      reset: {
+        isle: false
+      }
     };
     this.data = {
     };
@@ -14,7 +17,7 @@ class borderland {
   }
 
   init(){
-    this.data.isle = new isle( this.const.grade, this.const.a );
+    this.data.isle = new isle( this.const.grade, this.const.a, this );
   }
 
   click( offsets ){
@@ -27,8 +30,16 @@ class borderland {
 
   moved( offsets ){
   }
+  update(){
+    if( this.flag.reset.isle ){
+      this.flag.reset.isle = false;
+      this.data.isle = new isle( this.const.grade, this.const.a, this );
+    }
+  }
 
   draw( offsets ){
+    this.update();
+
     this.data.isle.draw( offsets[0].copy() );
   }
 }

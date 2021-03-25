@@ -85,15 +85,16 @@ class domain {
     }
   }
 
-  set_landed_estates( landed_estates, flag ){
-    if( this.var.landed_estates == 0 || flag == true || this.var.cluster != 0 ){
+  set_landed_estates( landed_estates, type ){
+    if( this.var.landed_estates == 0 || type == 1 || type == 2 || this.var.cluster != 0 ){
       this.var.cluster = 0;
       this.var.landed_estates = landed_estates;
     }
     else{
-      console.log( this.var.landed_estates, landed_estates )
+      console.log( this.var.landed_estates, this.var.cluster, type, landed_estates )
       console.log( 'landed_estates error' )
     }
+
   }
 
   add_pathway( pathway ){

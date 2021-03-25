@@ -15,14 +15,14 @@ class landed_estates {
       this.appropriate_domain( domain );
   }
 
-  appropriate_domain( domain ){
+  appropriate_domain( domain, flag ){
     this.array.domain.push( domain );
-    domain.set_landed_estates( this.const.index );
+    domain.set_landed_estates( this.const.index, 2 );
   }
 
   reject_domain( domain ){
     let index = this.array.domain.indexOf( domain );
     this.array.domain.splice( index, 1 );
-    domain.set_landed_estates( 0, true );
+    domain.set_landed_estates( 0, 1 );
   }
 }
