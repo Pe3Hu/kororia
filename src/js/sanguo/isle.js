@@ -16,7 +16,7 @@ class isle {
         foothold: 0,
         pathway: 0,
         landed_estates: 0,
-        layer: 1
+        layer: 3
       }
     };
     this.array = {
@@ -230,10 +230,10 @@ class isle {
     this.add_landed_estates( null );
     let half = this.const.size;
     let core = this.array.domain[half][half];
-    core.set_status( 2 );
     this.add_landed_estates( core );
-    let arounds = [];
-    arounds.push( core.const.index );
+    let arounds = [ core.const.index ];
+    let remoteness = [ 0 ];
+    core.set_status( 2, remoteness[0] );
     this.const.center = core.const.center.copy();
 
     for( let i = 0; i < half; i++ )
@@ -248,9 +248,10 @@ class isle {
 
           if( !arounds.includes( around ) && this.check_border( grid ) ){
             if( i < this.const.grade )
-              this.array.domain[grid.y][grid.x].set_status( 3 );
+              this.array.domain[grid.y][grid.x].set_status( 3, i + 1 );
 
             arounds.push( around );
+            remoteness.push( i + 1 );
           }
         }
       }
@@ -261,7 +262,7 @@ class isle {
       let grid = this.convert_index( arounds[i] );
 
       if( this.array.domain[grid.y][grid.x].var.status == 0 )
-        this.array.domain[grid.y][grid.x].set_status( 1 );
+        this.array.domain[grid.y][grid.x].set_status( 1, remoteness[i] );
 
       sorted.push( {
         'domain': arounds[i]
@@ -280,6 +281,7 @@ class isle {
       for( let j = 0; j < cols; j++ ){
         if( sorted.length > index )
           domains[i].push( sorted[index]['domain'] );
+
         index++;
       }
 
@@ -625,7 +627,7 @@ class isle {
   path_between_domains( begin, end, type ){
     let current_grid = begin.copy();
     let counter = 0;
-    let stopper = 50;
+    let stopper = this.const.m * 2;
     let current_d = current_grid.dist( end );
     let steps = [];
 
@@ -646,6 +648,10 @@ class isle {
             flag = !this.array.domain[next_grid.y][next_grid.x].flag.eye_of_the_storm &&
                    !this.array.domain[next_grid.y][next_grid.x].flag.core;
 
+          if( type == 1 )
+            flag = this.array.domain[begin.y][begin.x].const.remoteness <=
+                   this.array.domain[next_grid.y][next_grid.x].const.remoteness;
+
           if( next_d < min_d && flag ){
             min_d = next_d;
             step = neighbor.copy();
@@ -660,14 +666,15 @@ class isle {
     }
 
     current_grid = begin.copy();
+
     for( let step of steps ){
       current_grid.add( step );
     }
 
-  if( steps.length == 50 )
-    console.log( 'steps error', this.array.domain[begin.y][begin.x].const.index,
+  if( steps.length == stopper && type != 1 )
+    console.log( 'steps error' );/*, this.array.domain[begin.y][begin.x].const.index,
      this.array.domain[current_grid.y][current_grid.x].const.index,
-     this.array.domain[end.y][end.x].const.index, steps )
+     this.array.domain[end.y][end.x].const.index, steps )*/
     return steps;
   }
 
@@ -946,6 +953,108 @@ class isle {
     return false;
   }
 
+  set_capitals(){
+    let options = [];
+    let l = 8;
+
+    for( let i = l; i < this.array.landed_estates.length; i++ )
+      for( let domain of this.array.landed_estates[i].array.domain )
+        if( domain.const.remoteness == 3 )
+          options.push( domain );
+
+    let rand = Math.floor( Math.random() * options.length );
+    let fraction = 0;
+    let first_capital = options[rand];
+    first_capital.set_as_capital( fraction );
+    fraction++;
+    let most_remote = {
+      path_length: 0,
+      domains: []
+    };
+    let first = this.convert_index( first_capital.const.index );
+
+    for( let option of options ){
+      let type = 1;
+      let end = this.convert_index( option.const.index );
+      let path = this.path_between_domains( first, end, type );
+
+      if( path.length > most_remote.path_length ){
+        most_remote = {
+          path_length: path.length,
+          domains: [ option ]
+        };
+      }
+
+      if( path.length == most_remote.path_length )
+        most_remote.domains.push( option );
+    }
+
+    rand = Math.floor( Math.random() * most_remote.domains.length );
+    let second_capital = most_remote.domains[rand];
+
+    if( most_remote.domains.length > 0 )
+      second_capital.set_as_capital( fraction );
+    fraction++;
+
+    let capital_index = options.indexOf( first_capital );
+    options.splice( capital_index, 1 );
+    capital_index = options.indexOf( second_capital );
+    options.splice( capital_index, 1 );
+
+    most_remote = {
+      path_length: 0,
+      domains: []
+    };
+    let second = this.convert_index( second_capital.const.index );
+
+    options = [];
+
+    for( let domains of this.array.domain )
+      for( let domain of domains )
+        if( domain.const.remoteness == 3 &&
+            domain.var.landed_estates != first_capital.var.landed_estates &&
+            domain.var.landed_estates != second_capital.var.landed_estates )
+          options.push( domain );
+
+    let count_array = [];
+
+    for( let option of options ){
+      let type = 1;
+      let path_sum = 0;
+      let end = this.convert_index( option.const.index );
+      let path_f = this.path_between_domains( first, end, type );
+
+      let path_s = this.path_between_domains( second, end, type );
+
+      count_array.push( {
+        'domain': option,
+        'min': Math.min( path_f.length, path_s.length )
+      } );
+    }
+
+    count_array = this.bubble_sort( count_array, 'min' );
+    let shift = count_array[0]['min'];
+
+    for( let count of count_array ){
+      count['min'] -= shift;
+      count['min'] = Math.pow( count['min'], 2 )
+    }
+
+    let distribution = [];
+
+    for( let count of count_array )
+        for( let i = 0; i < count['min']; i++ )
+          distribution.push( count['domain'] );
+
+    rand = Math.floor( Math.random() * distribution.length );
+    let third_capital = distribution[rand];
+
+    if( distribution.length > 0 )
+      third_capital.set_as_capital( fraction );
+
+    this.data.borderland.flag.command_post.init = true;
+  }
+
   add_foothold( angle, index ){
     let grid = this.convert_index( index );
     let domain = this.array.domain[grid.y][grid.x];
@@ -1028,6 +1137,8 @@ class isle {
 
           if( neighbors == 1 )
             count++;
+
+          domain.set_le_hue( this.array.landed_estates.length );
         }
 
         flag = flag && count < 4;
@@ -1040,6 +1151,8 @@ class isle {
       console.log( 'land_integrity_check:', flag )
       this.data.borderland.flag.reset.isle = true;
     }
+    else
+      this.set_capitals();
   }
 
   click(){

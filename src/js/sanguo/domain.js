@@ -6,11 +6,13 @@ class domain {
       center: center.copy(),
       n: 6,
       a: a,
+      remoteness: null
     };
     this.flag = {
       visiable: false,
       eye_of_the_storm: false,
-      core: false
+      core: false,
+      capital: false
     };
     this.array = {
       vertex: [],
@@ -21,25 +23,23 @@ class domain {
       scale: 0.5,
       status: -1,
       landed_estates: -1,
-      cluster: 0
+      cluster: 0,
+      capital: null
     };
     this.color = {
-      bg: {
-        h: 210,
-        s: COLOR_MAX * 0.75,
-        l: COLOR_MAX * 0.5
-      },
-      eots: {
-        h: 270,
-        s: COLOR_MAX * 0.75,
-        l: COLOR_MAX * 0.5
-      },
-      core: {
-        h: 0,
-        s: COLOR_MAX * 0.75,
-        l: COLOR_MAX * 0.5
+      neutral: COLOR_MAX * 0.75,
+      s: COLOR_MAX * 0.75,
+      l: COLOR_MAX * 0.5,
+      h: {
+        eots: 30,
+        core: 0,
+        le: 30,
+        fraction: [ 200, 120, 280 ]
       }
     };
+    this.data = {
+      demesne: new demesne( this )
+    }
 
     this.init();
   }
@@ -61,8 +61,10 @@ class domain {
     this.set_status( 0 );
   }
 
-  set_status( status ){
+  set_status( status, remoteness ){
     this.var.status = status;
+    if( remoteness != null )
+      this.const.remoteness = remoteness;
 
     switch ( status ) {
       case 0:
@@ -97,6 +99,15 @@ class domain {
 
   }
 
+  set_le_hue( landed_estates_length ){
+    this.color.h.le = COLOR_MAX  * ( this.var.landed_estates - 1 ) / landed_estates_length;
+  }
+
+  set_as_capital( fraction ){
+    this.flag.capital = true;
+    this.var.fraction = fraction;
+  }
+
   add_pathway( pathway ){
     let flag = pathway.array.domain.includes( this.const.index );
     //console.log( pathway.array.domain, this.const.index)
@@ -115,19 +126,27 @@ class domain {
       vec.add( this.const.center );
 
       noStroke();
-      fill( this.color.bg.h, this.color.bg.s, this.color.bg.l );
-      let hue = this.var.landed_estates * COLOR_MAX / l;
-      if( layer == 1 )
-        fill( hue, this.color.bg.s, this.color.bg.l );
+      fill( this.color.neutral );
 
-      if( this.flag.eye_of_the_storm && layer != 1 )
-        fill( this.color.eots.h, this.color.eots.s, this.color.eots.l );
-      if( this.flag.core )
-        fill( this.color.core.h, this.color.core.s, this.color.core.l );
+      if( layer == 1 )
+        fill( this.color.h.le, this.color.s, this.color.l );
+
+      if( layer == 3 ){
+        if( this.flag.eye_of_the_storm  )
+          fill( this.color.h.eots, this.color.s, this.color.l );
+        if( this.flag.core )
+          fill( this.color.h.core, this.color.s, this.color.l );
+        if( this.var.fraction != null )
+          fill( this.color.h.fraction[this.var.fraction], this.color.s, this.color.l );
+      }
+
+      if( this.flag.capital == true )
+        ellipse( vec.x, vec.y, this.const.a * this.var.scale * 3, this.const.a * this.var.scale * 3 );
 
       for( let i = 0; i < this.array.vertex.length; i++ ){
         let ii = ( i + 1 ) % this.array.vertex.length;
 
+        fill( this.color.neutral );
         triangle( vec.x, vec.y,
                   this.array.vertex[i].x + vec.x, this.array.vertex[i].y + vec.y,
                   this.array.vertex[ii].x + vec.x, this.array.vertex[ii].y + vec.y );
@@ -136,15 +155,13 @@ class domain {
       noStroke();
       fill( 0 );
       let txt = this.const.index;
-      if( layer == 1 && this.var.landed_estates != 0 )
-        txt += '_' + this.var.landed_estates;
 
-      if( layer == 3 ){
-        txt = this.var.landed_estates;
+      /*if( layer == 1 && this.var.landed_estates != 0 )
+        txt += '_' + this.var.landed_estates;*/
 
-        if( this.var.landed_estates == 0 || layer == 1 )
-          txt += '_' + this.var.cluster;
-      }
+      if( this.var.landed_estates == 0 || layer == 1 )
+        txt += '_' + this.var.cluster;
+
 
       text( txt, vec.x, vec.y + FONT_SIZE / 3 );
     }
