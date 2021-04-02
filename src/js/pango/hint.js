@@ -1,12 +1,21 @@
 //
 class hint {
-  constructor ( index, type, swing, a ){
+  constructor ( index, ring, anchor, type, swing, a ){
     this.const = {
       index: index,
+      anchor: {
+        index: anchor,
+        grid: createVector(),
+        center: createVector(),
+        flag: anchor != -1
+      },
       type: type,
       swing: swing,
       a: a,
       n: 4,
+      m: ring.const.m,
+      scale: 1,
+      stroke_weight: 1
     };
     this.var = {
       current: {
@@ -17,6 +26,10 @@ class hint {
       vertex: [],
       hyphen: [],
       dot: []
+    };
+    this.data = {
+      ring: ring,
+      cloth: new cloth( this )
     };
 
     this.init();
@@ -32,24 +45,18 @@ class hint {
     }
   }
 
-  init_dots(){
-    this.array.dot = [ createVector() ];
-  }
+  set_anchor(){
+    console.log( this.const.anchor.flag  )
+    if( this.const.anchor.flag && ( this.const.type == 2 || this.const.type == 4 ) ){
+      this.const.anchor.index = this.const.m * this.const.swing;
+    }
 
-  init(){
-    this.init_vertexs();
-    this.init_dots();
-    this.init_hyphens();
+    this.const.anchor.grid = this.data.cloth.convert_index( this.const.anchor.index );
+    this.const.anchor.center = this.data.cloth.get_anchor( this.const.anchor.grid );
   }
-
-  add_hyphen( hyphen ){
-    this.var.current.shift.add( this.array.vertex[hyphen] );
-    this.array.dot.push( this.var.current.shift.copy() );
-    this.array.hyphen.push( hyphen );
-  }
-
 
   init_hyphens(){
+    this.array.dot = [ createVector() ];
     let hyphen = ( this.const.type % 2 ) * 2;
 
     switch ( this.const.type ) {
@@ -78,9 +85,41 @@ class hint {
     }
   }
 
+  init(){
+    this.init_vertexs();
+    this.anchor_check();
+    this.init_hyphens();
+    this.set_anchor();
+    this.anchor_check();
+  }
+
+  add_hyphen( hyphen ){
+    this.var.current.shift.add( this.array.vertex[hyphen] );
+    this.array.dot.push( this.var.current.shift.copy() );
+    this.array.hyphen.push( hyphen );
+  }
+
+  anchor_check(){
+    let flag = this.data.cloth.border_crossing_check( this );
+
+    if( flag ){
+      this.const.anchor.index = -1;
+      this.const.anchor.flag = false;
+      //this.set_anchor();
+    }
+
+  }
+
   draw( offset ){
     let vec = offset.copy();
+
+    this.data.cloth.draw( vec );
     stroke( 0 );
+    strokeWeight( this.const.stroke_weight );
+    vec.x -= this.const.stroke_weight / 2;
+    vec.y -= this.const.stroke_weight / 2;
+
+    vec.add( this.const.anchor.center  )
 
     for( let i = 0; i < this.array.dot.length - 1; i++ ){
       let ii = i + 1;

@@ -2,7 +2,7 @@
 class jack {
   constructor (  ){
     this.const = {
-      n: 2,
+      n: 1,
       a: CELL_SIZE,
       player: 0
     };

@@ -2,8 +2,9 @@
 class ring {
   constructor ( jack ){
     this.const = {
-      size: 3,
-      a: jack.const.a
+      m: 3,
+      a: jack.const.a,
+      scale: 3
     };
     this.var = {
     };

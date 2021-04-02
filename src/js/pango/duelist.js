@@ -21,23 +21,24 @@ class duelist {
   }
 
   init_hints(){
-    let type = 3;
+    let anchor = 4;
+    let type = 2;
     let swing = 1;
 
-    this.add_hint( type, swing );
+    this.add_hint( anchor, type, swing );
   }
 
   init(){
     this.init_hints();
   }
 
-  add_hint( type, swing ){
-    this.array.hint.push( new hint( this.var.current.hint, type, swing, this.const.a ) );
+  add_hint( anchor, type, swing ){
+    let ring = this.data.jack.data.ring;
+    this.array.hint.push( new hint( this.var.current.hint, ring, anchor, type, swing, this.const.a ) );
     this.var.current.hint++;
   }
 
   draw( offset ){
-
     for( let hint of this.array.hint )
       hint.draw( offset )
   }

@@ -13,7 +13,7 @@ class kink {
   init(){
   }
 
-  draw( offset ){
+  draw( offset, name ){
     let vec = offset.copy();
     vec.add( this.const.center );
 
@@ -21,8 +21,10 @@ class kink {
     ellipse( vec.x, vec.y, this.const.a / 2, this.const.a / 2 );
 
 
-    fill( 0 );
-    let txt = this.const.index;
-    text( txt, vec.x, vec.y + FONT_SIZE / 3 );
+    if( name == 'ring' ){
+      fill( 0 );
+      let txt = this.const.index;
+      text( txt, vec.x, vec.y + FONT_SIZE / 3 );
+    }
   }
 }
