@@ -33,6 +33,10 @@ class demesne {
     this.init_vertexs();
   }
 
+  erect(){
+    
+  }
+
   draw( offset ){
     let vec = offset.copy();
     vec.add( this.var.offset );

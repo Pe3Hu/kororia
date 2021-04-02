@@ -10,7 +10,7 @@ const MENU_LAYER = 99;
 let CANVAS_SIZE;
 let CANVAS_GRID;
 let FONT;
-let GAME_BOARD;
+let GAME_BOARD = null;
 
 function preload() {
   FONT = loadFont('src/fonts/Chunkfive.otf');
@@ -41,7 +41,8 @@ function mouseClicked() {
 }
 
 function mouseMoved() {
-  GAME_BOARD.moved();
+  if( GAME_BOARD != null )
+    GAME_BOARD.moved();
 }
 
 function keyPressed() {

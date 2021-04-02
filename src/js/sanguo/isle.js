@@ -1052,7 +1052,7 @@ class isle {
     if( distribution.length > 0 )
       third_capital.set_as_capital( fraction );
 
-    this.data.borderland.flag.command_post.init = true;
+    this.data.borderland.flag.commanders.init = true;
   }
 
   add_foothold( angle, index ){
@@ -1117,7 +1117,7 @@ class isle {
     let flag = true;
 
     for( let landed_estates of this.array.landed_estates )
-      if( landed_estates.const.index > 1 ){
+      if( landed_estates.const.index > 0 ){
         let count = 0;
 
         for( let domain of landed_estates.array.domain ){

@@ -21,7 +21,18 @@ class command_post {
 
   init(){
     this.update_domains();
+    this.equip_capital();
+
     this.offset_to_capital();
+  }
+
+  equip_capital(){
+    let capital = this.data.capital.data.demesne;
+    capital.erect( 'map', 'reconnaissance', 1 );
+    capital.erect( 'research', '', 1 );
+    capital.erect( 'economy ', 'elaboration', 1 );
+    capital.erect( 'army', '', 1 );
+    capital.erect( 'administration', 1 );
   }
 
   update_domains(){
@@ -37,7 +48,7 @@ class command_post {
             this.data.capital = domain;
         }
 
-    console.log( this.array.demesne )
+    //console.log( this.array.demesne )
   }
 
   offset_to_capital(){
@@ -48,7 +59,7 @@ class command_post {
 
     let center  = createVector(
        isle.const.r * 2 * x,
-       isle.const.a * 1.5 * y  + this.const.a );
+       isle.const.a * 1.5 * y  + this.const.a * 2 );
 
     this.var.offset = center.copy();
     this.var.offset.sub( this.data.capital.const.center );

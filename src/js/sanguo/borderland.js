@@ -3,13 +3,17 @@ class borderland {
   constructor (  ){
     this.const = {
       grade: 1,
-      a: CELL_SIZE * 1
+      a: CELL_SIZE * 1,
+      fractions: 3
+    };
+    this.array = {
+      commander: []
     };
     this.flag = {
       reset: {
         isle: false
       },
-      command_post: {
+      commanders: {
         init: false,
         draw: false
       }
@@ -23,17 +27,16 @@ class borderland {
     this.init();
   }
 
-  init_command_post(){
-    this.data.command_post= new command_post( this.data.player.fraction, this.const.a, this.data.isle );
-    
-    this.flag.command_post.draw = true;
-    this.flag.command_post.init = false;
+  init_commanders(){
+    for( let i = 0; i < this.const.fractions; i++ )
+      this.array.commander.push( new commander( i, i, this.const.a, this.data.isle ) );
+
+    this.flag.commanders.draw = true;
+    this.flag.commanders.init = false;
   }
 
   init(){
     this.data.isle = new isle( this.const.grade, this.const.a, this );
-
-
   }
 
   click( offsets ){
@@ -52,8 +55,8 @@ class borderland {
       this.flag.reset.isle = false;
       this.data.isle = new isle( this.const.grade, this.const.a, this );
     }
-    if( this.flag.command_post.init )
-      this.init_command_post();
+    if( this.flag.commanders.init )
+      this.init_commanders();
   }
 
   draw( offsets ){
@@ -61,7 +64,7 @@ class borderland {
 
     this.data.isle.draw( offsets[0].copy() );
 
-    if( this.flag.command_post.draw )
-      this.data.command_post.draw( offsets[0].copy() );
+    if( this.flag.commanders.draw )
+      this.array.commander[this.data.player.fraction].draw( offsets[0].copy() );
   }
 }

@@ -100,7 +100,7 @@ class domain {
   }
 
   set_le_hue( landed_estates_length ){
-    this.color.h.le = COLOR_MAX  * ( this.var.landed_estates - 1 ) / landed_estates_length;
+    this.color.h.le = COLOR_MAX  * ( this.var.landed_estates - 1 ) / ( landed_estates_length - 1 );
   }
 
   set_as_capital( fraction ){
@@ -146,7 +146,6 @@ class domain {
       for( let i = 0; i < this.array.vertex.length; i++ ){
         let ii = ( i + 1 ) % this.array.vertex.length;
 
-        fill( this.color.neutral );
         triangle( vec.x, vec.y,
                   this.array.vertex[i].x + vec.x, this.array.vertex[i].y + vec.y,
                   this.array.vertex[ii].x + vec.x, this.array.vertex[ii].y + vec.y );
@@ -156,12 +155,11 @@ class domain {
       fill( 0 );
       let txt = this.const.index;
 
-      /*if( layer == 1 && this.var.landed_estates != 0 )
-        txt += '_' + this.var.landed_estates;*/
+      if( layer == 1 && this.var.landed_estates != 0 )
+        txt += '_' + this.var.landed_estates;
 
-      if( this.var.landed_estates == 0 || layer == 1 )
-        txt += '_' + this.var.cluster;
-
+      /*if( this.var.landed_estates == 0 || layer == 1 )
+        txt += '_' + this.var.cluster;*/
 
       text( txt, vec.x, vec.y + FONT_SIZE / 3 );
     }
