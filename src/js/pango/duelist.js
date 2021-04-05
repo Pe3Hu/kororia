@@ -21,7 +21,7 @@ class duelist {
   }
 
   init_hints(){
-    let anchor = 9;
+    let anchor = 4;
     let type = 2;
     let swing = 1;
 

@@ -48,10 +48,12 @@ class cloth {
 
   border_crossing_check( hint ){
     let sign = ( hint.const.type + 1 ) % 2 * -2 +1;
+    console.log( hint.const.anchor.index, hint.const.type, sign )
 
     let grid = hint.const.anchor.grid.copy();
     grid.x += 1;
     grid.y += hint.const.swing * sign;
+    console.log( grid.y, grid.x )
     return this.check_border( grid );
   }
 
@@ -59,9 +61,6 @@ class cloth {
   convert_index( index ){
     if( index == undefined )
       return null;
-
-    if( index < 0 || index > this.const.m * this.const.m - 1 )
-      index = 0;
 
     let i = Math.floor( index / this.const.m );
     let j = index % this.const.m;
@@ -73,12 +72,7 @@ class cloth {
     if( vec == undefined )
       return null;
 
-    let index = vec.y * this.const.m + vec.x;
-
-    if( index < 0 || index > this.const.m * this.const.m - 1 )
-      index = 0;
-
-    return index;
+    return vec.y * this.const.m + vec.x;
   }
 
   check_border( grid ){

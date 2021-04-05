@@ -46,16 +46,13 @@ class hint {
   }
 
   set_anchor(){
-    if( !this.const.anchor.flag ){
-      this.const.anchor.index = 0;
-
-      if( this.const.type == 2 || this.const.type == 4 )
-        this.const.anchor.index = this.const.m * this.const.swing;
+    console.log( this.const.anchor.flag  )
+    if( this.const.anchor.flag && ( this.const.type == 2 || this.const.type == 4 ) ){
+      this.const.anchor.index = this.const.m * this.const.swing;
     }
 
     this.const.anchor.grid = this.data.cloth.convert_index( this.const.anchor.index );
     this.const.anchor.center = this.data.cloth.get_anchor( this.const.anchor.grid );
-
   }
 
   init_hyphens(){
@@ -90,6 +87,7 @@ class hint {
 
   init(){
     this.init_vertexs();
+    this.anchor_check();
     this.init_hyphens();
     this.set_anchor();
     this.anchor_check();
@@ -104,10 +102,10 @@ class hint {
   anchor_check(){
     let flag = this.data.cloth.border_crossing_check( this );
 
-    if( !flag ){
+    if( flag ){
       this.const.anchor.index = -1;
       this.const.anchor.flag = false;
-      this.set_anchor();
+      //this.set_anchor();
     }
 
   }
