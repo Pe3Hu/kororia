@@ -48,12 +48,12 @@ class cloth {
 
   border_crossing_check( hint ){
     let sign = ( hint.const.type + 1 ) % 2 * -2 +1;
-    console.log( hint.const.anchor.index, hint.const.type, sign )
+    //console.log( '', hint.const.anchor.index, hint.const.type, sign )
 
     let grid = hint.const.anchor.grid.copy();
     grid.x += 1;
     grid.y += hint.const.swing * sign;
-    console.log( grid.y, grid.x )
+    //console.log( '', grid.y, grid.x )
     return this.check_border( grid );
   }
 

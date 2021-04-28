@@ -6,6 +6,7 @@ const INFINITY = 999999999;
 const FRAME_RATE = 60;
 const FONT_SIZE = 10;
 const MENU_LAYER = 99;
+const STROKE_WEIGHT = 0.25;
 
 let CANVAS_SIZE;
 let CANVAS_GRID;

@@ -46,7 +46,7 @@ class hint {
   }
 
   set_anchor(){
-    console.log( this.const.anchor.flag  )
+    //console.log( '', this.const.anchor.flag  )
     if( this.const.anchor.flag && ( this.const.type == 2 || this.const.type == 4 ) ){
       this.const.anchor.index = this.const.m * this.const.swing;
     }
