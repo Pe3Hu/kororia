@@ -7,18 +7,20 @@ class domain_h {
       n: 6,
       a: a
     };
-    this.flag = {
-      visiable: false,
-      el_dorado: false
+    this.var = {
+      font_size: FONT_SIZE,
+      scale: 0.5,
+      status: -1
     };
     this.array = {
       vertex: [],
       pathway: []
     };
-    this.var = {
-      font_size: FONT_SIZE,
-      scale: 0.5,
-      status: -1
+    this.flag = {
+      visiable: false,
+      el_dorado: false,
+      inception: false,
+      city_state: false
     };
     this.color = {
       neutral: COLOR_MAX * 0.75,
@@ -26,7 +28,8 @@ class domain_h {
       l: COLOR_MAX * 0.5,
       h: {
         el_dorado: 60,
-        descent: 210
+        descent: 210,
+        city_state: 120
       }
     };
     this.data = {
@@ -60,6 +63,8 @@ class domain_h {
     switch ( status ) {
       case 0:
         this.flag.visiable = false;
+        this.flag.descent = false;
+        this.flag.city_state = false;
         this.flag.el_dorado = false;
         break;
       case 1:
@@ -70,6 +75,10 @@ class domain_h {
         this.flag.descent = true;
         break;
       case 3:
+        this.flag.visiable = true;
+        this.flag.city_state = true;
+        break;
+      case 4:
         this.flag.visiable = true;
         this.flag.el_dorado = true;
         break;
@@ -104,10 +113,19 @@ class domain_h {
           stroke( this.color.h.descent, this.color.s, this.color.l );
           fill( this.color.h.descent, this.color.s, this.color.l );
         }
+        if( this.flag.city_state ){
+          stroke( this.color.h.city_state, this.color.s, this.color.l );
+          fill( this.color.h.city_state, this.color.s, this.color.l );
+        }
         if( this.flag.el_dorado ){
           stroke( this.color.h.el_dorado, this.color.s, this.color.l );
           fill( this.color.h.el_dorado, this.color.s, this.color.l );
         }
+      }
+
+      if( this.flag.inception ){
+        stroke( this.color.h.el_dorado, this.color.s, this.color.l );
+        fill( this.color.h.el_dorado, this.color.s, this.color.l );
       }
 
       for( let i = 0; i < this.array.vertex.length; i++ ){
@@ -126,11 +144,8 @@ class domain_h {
         text( txt, vec.x, vec.y + FONT_SIZE / 3 );
       }
       else
-        if( this.data.substance != null ){
+        if( this.data.substance != null )
           this.data.substance.draw( vec );
-          fill( 0 );
-          text( this.data.substance.const.phase, vec.x, vec.y + FONT_SIZE / 3 );
-        }
     }
   }
 }
