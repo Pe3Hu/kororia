@@ -740,6 +740,7 @@ class isle {
 
     for( let pathway of where_domain.array.pathway ){
       let neighbor = this.array.pathway[0][pathway].betray_neighbor( where_domain.const.index )
+
       if( neighbor == domains[1].const.index )
         flag = true;
     }
@@ -782,7 +783,6 @@ class isle {
         let neighbor_grid = this.convert_index( neighbor_index );
 
         if( this.check_border( neighbor_grid ) ){
-
           let flag = null;
 
           switch ( type ) {

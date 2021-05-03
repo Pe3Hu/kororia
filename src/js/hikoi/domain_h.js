@@ -14,7 +14,8 @@ class domain_h {
     };
     this.array = {
       vertex: [],
-      pathway: []
+      pathway: [],
+      foothold: []
     };
     this.flag = {
       visiable: false,
@@ -27,7 +28,7 @@ class domain_h {
       s: COLOR_MAX * 0.75,
       l: COLOR_MAX * 0.5,
       h: {
-        el_dorado: 60,
+        el_dorado: 0,
         descent: 210,
         city_state: 120
       }

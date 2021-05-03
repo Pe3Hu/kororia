@@ -23,8 +23,7 @@ class pathway_h {
   draw( offset ){
     let vec = offset.copy();
 
-
-    strokeWeight( 1 );
+    strokeWeight( STROKE_WEIGHT );
     stroke( 0 );
     line( this.array.end[0].x + vec.x, this.array.end[0].y + vec.y,
           this.array.end[1].x + vec.x, this.array.end[1].y + vec.y );
