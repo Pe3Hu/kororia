@@ -81,7 +81,6 @@ class substance_h {
       dots[1].copy(),
       dots[1].copy(),
 
-
       dots[1].copy(),
       dots[0].copy(),
       dots[2].copy(),

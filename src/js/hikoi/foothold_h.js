@@ -1,16 +1,17 @@
 //
 class foothold_h {
-  constructor( index, center, row, a ){
+  constructor( index, center, row, a, scale ){
     this.const = {
       index: index,
       center: center.copy(),
       row: row,
-      a: a,
+      a: a * scale,
       n: 6
     };
     this.flag = {
       visiable: true,
-      owned: false
+      owned: false,
+      donor: false
     };
     this.color = {
       s: COLOR_MAX * 0.75,
@@ -33,7 +34,7 @@ class foothold_h {
       }
     };
     this.data = {
-      demesne: new demesne_h( this )
+      demesne: new demesne_h( this, 1 )
     };
 
     this.init();
@@ -53,6 +54,12 @@ class foothold_h {
     this.const.r = this.const.a * this.var.scale / ( Math.tan( Math.PI / this.const.n ) * 2 );
 
     this.init_vertexs();
+  }
+
+  import_donor( scale ){
+    let donor = new foothold_h( this.const.index, createVector(), this.const.row, this.const.a, scale );
+    donor.flag.donor = true;
+    return donor;
   }
 
   draw( offset ){

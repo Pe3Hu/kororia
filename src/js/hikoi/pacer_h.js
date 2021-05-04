@@ -10,11 +10,14 @@ class pacer_h {
     this.array = {
     };
     this.data = {
-      isle: isle
-    }
+      isle: isle,
+      list: {
+      }
+    };
 
     this.init();
   }
+
 
   init(){
   }

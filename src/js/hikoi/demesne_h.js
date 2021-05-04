@@ -1,15 +1,16 @@
 //
 class demesne_h {
-  constructor( foothold ){
+  constructor( foothold, scale ){
     this.const = {
-      a: foothold.const.a * foothold.var.scale,
+      a: foothold.const.a * foothold.var.scale * scale,
       n: foothold.const.n
-    };
-    this.flag = {
-      visiable: false,
     };
     this.var = {
       scale: 0.8
+    };
+    this.flag = {
+      visiable: false,
+      donor: false
     };
     this.array = {
       vertex: [],
@@ -39,6 +40,14 @@ class demesne_h {
   erect( obj ){
     this.flag.visiable = true;
     this.array.facility.push( new facility_h( obj ) );
+  }
+
+  import_donor( scale ){
+    let donor = new demesne_h( this.data.foothold, scale );
+    donor.flag.visiable = true;
+    donor.flag.donor = true;
+    donor.array.facility = this.array.facility;
+    return donor;
   }
 
   draw( offset ){

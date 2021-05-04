@@ -26,7 +26,11 @@ class isle_h {
         layer: 0,
         foothold: 0,
         pathway: 0
-      }
+      },
+      selected: {
+        foothold: null
+      },
+      scale: 1
     };
     this.array = {
       domain: [],
@@ -129,7 +133,6 @@ class isle_h {
       } );
     }
 
-    sorted = this.bubble_sort( sorted, 'domain' );
     sorted = this.bubble_sort( sorted, 'domain' );
     let domains = [];
     let cols = this.const.size + 1;
@@ -801,7 +804,7 @@ class isle_h {
       Math.cos( Math.PI * 2 / domain.const.n * ( -1 - angle + domain.const.n / 2 ) ) * domain.const.a );
     center.add( shift );
 
-    this.array.foothold[this.array.foothold.length - 1].push( new foothold_h( this.var.current.foothold, center.copy(), row, this.const.a ) );
+    this.array.foothold[this.array.foothold.length - 1].push( new foothold_h( this.var.current.foothold, center.copy(), row, this.const.a, this.var.scale ) );
     this.var.current.foothold++;
   }
 
@@ -959,7 +962,24 @@ class isle_h {
     }
   }
 
-  click(){
+  click( offset ){
+    let mouse = createVector( mouseX, mouseY );
+    mouse.sub( offset );
+    let flag = true;
+
+    for( let footholds of this.array.foothold )
+      for( let foothold of footholds )
+        if( flag ){
+          let d = foothold.const.center.dist( mouse );
+
+          if( d < foothold.const.a / 2 ){
+            this.var.selected.foothold = foothold;
+            flag = false;
+          }
+        }
+
+      if( flag )
+        this.var.selected.foothold = null;
   }
 
   key(){

@@ -2,6 +2,7 @@
 class command_center_h {
   constructor( borderland ){
     this.const = {
+      player: 0
     };
     this.var = {
     };
