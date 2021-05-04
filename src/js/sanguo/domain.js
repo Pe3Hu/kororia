@@ -1,6 +1,6 @@
 //
 class domain {
-  constructor ( index, center, a ){
+  constructor( index, center, a ){
     this.const = {
       index: index,
       center: center.copy(),

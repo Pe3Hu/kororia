@@ -70,7 +70,7 @@ class board {
     this.array.offset[layer].push( offset.copy() );
 
     layer = 2;
-    offset = createVector( CELL_SIZE * 1.5 - isle.const.r, CELL_SIZE * 1.5 );
+    offset = createVector( CELL_SIZE * 0.5 + isle.const.r * 1, CELL_SIZE * 0.5 + isle.const.r * 3  );
     this.array.offset[layer].push( offset.copy() );
   }
 

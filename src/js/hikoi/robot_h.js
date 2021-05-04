@@ -1,5 +1,5 @@
 //
-class test {
+class robot_h {
   constructor(){
     this.const = {
     };

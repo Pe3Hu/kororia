@@ -1,6 +1,6 @@
 //
 class foothold_h {
-  constructor ( index, center, row, a ){
+  constructor( index, center, row, a ){
     this.const = {
       index: index,
       center: center.copy(),
@@ -8,9 +8,9 @@ class foothold_h {
       a: a,
       n: 6
     };
-
     this.flag = {
       visiable: true,
+      owned: false
     };
     this.color = {
       s: COLOR_MAX * 0.75,
@@ -31,6 +31,9 @@ class foothold_h {
         descent: null,
         city_state: null
       }
+    };
+    this.data = {
+      demesne: new demesne_h( this )
     };
 
     this.init();
@@ -78,9 +81,12 @@ class foothold_h {
                   this.array.vertex[ii].x + vec.x, this.array.vertex[ii].y + vec.y );
       }
 
-      noStroke();
+      if( this.data.demesne.flag.visiable )
+        this.data.demesne.draw( vec );
+
+      /*noStroke();
       fill( 0 );
-      text( this.const.index, vec.x, vec.y + FONT_SIZE / 3 );
+      text( this.const.index, vec.x, vec.y + FONT_SIZE / 3 );*/
     }
   }
 }

@@ -1,6 +1,6 @@
 //
 class landed_estates {
-  constructor ( index, domain, isle ){
+  constructor( index, domain, isle ){
     this.const = {
       index
     };

@@ -1,6 +1,6 @@
 //
 class domain_h {
-  constructor ( index, center, a ){
+  constructor( index, center, a ){
     this.const = {
       index: index,
       center: center.copy(),
@@ -109,7 +109,7 @@ class domain_h {
       stroke( this.color.neutral );
       fill( this.color.neutral );
 
-      if( layer == 0 ){
+      if( layer == 0  ){
         if( this.flag.descent ){
           stroke( this.color.h.descent, this.color.s, this.color.l );
           fill( this.color.h.descent, this.color.s, this.color.l );
@@ -138,7 +138,7 @@ class domain_h {
       }
 
 
-      if( layer != 1 ){
+      if( layer == 2 ){
         noStroke();
         fill( 0 );
         let txt = this.const.index;

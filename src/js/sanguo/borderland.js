@@ -1,6 +1,6 @@
 //
 class borderland {
-  constructor (  ){
+  constructor(  ){
     this.const = {
       grade: 1,
       a: CELL_SIZE * 1,

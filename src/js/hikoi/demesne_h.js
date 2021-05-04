@@ -1,18 +1,22 @@
 //
 class demesne_h {
-  constructor ( domain ){
+  constructor( foothold ){
     this.const = {
-      a: domain.const.a,
-      n: domain.const.n
+      a: foothold.const.a * foothold.var.scale,
+      n: foothold.const.n
+    };
+    this.flag = {
+      visiable: false,
     };
     this.var = {
-      scale: 1
+      scale: 0.8
     };
     this.array = {
-      vertex: []
+      vertex: [],
+      facility: []
     };
     this.data = {
-      domain: domain
+      foothold: foothold
     };
 
     this.init();
@@ -32,13 +36,20 @@ class demesne_h {
     this.init_vertexs();
   }
 
+  erect( obj ){
+    this.flag.visiable = true;
+    this.array.facility.push( new facility_h( obj ) );
+  }
+
   draw( offset ){
     let vec = offset.copy();
-    vec.add( this.var.offset );
-    vec.add( this.data.domain.const.center );
+    /*vec.add( this.var.offset );
+    vec.add( this.data.foothold.const.center );*/
+    stroke( COLOR_MAX )
     fill( COLOR_MAX );
 
-    for( let i = 0; i < this.array.vertex.length; i++ ){
+    for( let facility of this.array.facility ){
+      let i = facility.const.sector;
       let ii = ( i + 1 ) % this.array.vertex.length;
 
       triangle( vec.x, vec.y,

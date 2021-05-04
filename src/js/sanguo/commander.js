@@ -1,6 +1,6 @@
 //
 class commander {
-  constructor ( index, fraction, a, isle ){
+  constructor( index, fraction, a, isle ){
     this.const = {
       index: index,
       fraction: fraction,

@@ -1,6 +1,6 @@
 //
 class demesne {
-  constructor ( domain ){
+  constructor( domain ){
     this.const = {
       a: domain.const.a,
       n: domain.const.n
@@ -29,12 +29,11 @@ class demesne {
   }
 
   init(){
-
     this.init_vertexs();
   }
 
   erect(){
-    
+
   }
 
   draw( offset ){

@@ -1,6 +1,6 @@
 //
 class pathway_h {
-  constructor ( index, domains, ends ){
+  constructor( index, domains, ends ){
     this.const = {
       index
     };

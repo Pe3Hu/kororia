@@ -1,6 +1,6 @@
 //
 class command_post {
-  constructor ( fraction, a, isle ){
+  constructor( fraction, a, isle ){
     this.const = {
       fraction: fraction,
       a: a

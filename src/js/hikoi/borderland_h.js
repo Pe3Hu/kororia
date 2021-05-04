@@ -1,19 +1,21 @@
 //
 class borderland_h {
-  constructor (  ){
+  constructor(){
     this.const = {
       grade: 2,
-      a: CELL_SIZE * 1
+      a: CELL_SIZE * 13 / 8
     };
     this.data = {
-      isle: null
+      isle: null,
+      command_center: []
     }
 
     this.init();
   }
 
   init(){
-    this.data.isle = new isle_h( this.const.grade, this.const.a, this );
+    this.data.isle = new isle_h( this );
+    this.data.command_center = new command_center_h( this );
   }
 
   click( offsets ){

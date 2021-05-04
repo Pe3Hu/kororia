@@ -6,7 +6,7 @@ const INFINITY = 999999999;
 const FRAME_RATE = 60;
 const FONT_SIZE = 10;
 const MENU_LAYER = 99;
-const STROKE_WEIGHT = 0.25;
+const STROKE_WEIGHT = 0.5 * 13 / 8;
 
 let CANVAS_SIZE;
 let CANVAS_GRID;
@@ -18,7 +18,7 @@ function preload() {
 }
 
 function setup() {
-  CANVAS_SIZE = createVector( 1280, 800 );//800 600
+  CANVAS_SIZE = createVector( 1600, 960 );//800 600
   CANVAS_GRID = createVector( Math.floor( CANVAS_SIZE.x / CELL_SIZE ), Math.floor( CANVAS_SIZE.y / CELL_SIZE ) );
   createCanvas( CANVAS_SIZE.x, CANVAS_SIZE.y );
 

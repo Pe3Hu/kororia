@@ -1,6 +1,6 @@
 //
 class construction {
-  constructor ( index ){
+  constructor( index ){
     this.const = {
       index: index
     };

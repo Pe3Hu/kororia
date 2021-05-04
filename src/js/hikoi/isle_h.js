@@ -1,13 +1,13 @@
 //
 class isle_h {
-  constructor( grade, a, borderland ){
+  constructor( borderland ){
     this.const = {
-      grade: grade,
-      size: grade * ( grade + 1 ) + 1,
-      a: a,
+      grade: borderland.const.grade,
+      size: borderland.const.grade * ( borderland.const.grade + 1 ) + 1,
+      a: borderland.const.a,
       m: null,
       center: null,
-      layers: 2,
+      layers: 3,
       estrangement: {
         base: 1,
         phase: 2,
@@ -275,19 +275,22 @@ class isle_h {
           let grid_neighbor = this.convert_index( index_neighbor );
           let domain_neighbor = this.array.domain[grid_neighbor.y][grid_neighbor.x];
 
-          if( domain_neighbor.data.substance != null ){
-            for( let foothold_neighbor of domain_neighbor.array.foothold )
-              if( descent.array.foothold.includes( foothold_neighbor ) )
-                footholds.push( foothold_neighbor );
+          if( domain_neighbor.data.substance != null )
+            if( domain_neighbor.data.substance.const.genesis == 0 ){
+              for( let foothold_neighbor of domain_neighbor.array.foothold )
+                if( descent.array.foothold.includes( foothold_neighbor ) )
+                  footholds.push( foothold_neighbor );
 
-            flag = false;
-          }
+              flag = false;
+            }
       }
       let rand = Math.floor( Math.random() * footholds.length );
       let grid_rand = this.convert_index_foothold( footholds[rand] );
-      let foothold = this.array.foothold[grid_rand.x][grid_rand.y];
+      let foothold = this.array.foothold[grid_rand.y][grid_rand.x];
       foothold.var.owner.descent = descent.const.index;
+      foothold.flag.owned = true;
     }
+
     for( let index of this.array.city_state ){
       let footholds = [];
       let grid = this.convert_index( index );
@@ -314,8 +317,9 @@ class isle_h {
 
       let rand = Math.floor( Math.random() * footholds.length );
       let grid_rand = this.convert_index_foothold( footholds[rand] );
-      let foothold = this.array.foothold[grid_rand.x][grid_rand.y];
+      let foothold = this.array.foothold[grid_rand.y][grid_rand.x];
       foothold.var.owner.city_state = city_state.const.index;
+      foothold.flag.owned = true;
     }
   }
 
@@ -495,8 +499,9 @@ class isle_h {
   init_inceptions(){
     let stopper = this.const.size * 2;
     let counter = 0;
+    let flag = true;
 
-    while( counter < stopper ){
+    while( counter < stopper && flag ){
       let genesiss = [ 1, 2, 3, 4 ];
       let phases = [ 0, 1, 2 ];
       let dist = Math.pow( this.const.size, 2 );
@@ -567,8 +572,92 @@ class isle_h {
         }
 
         if( sum == 0 )
-          return;
+          flag = false;
+        else{
+          let min_length = Math.pow( this.const.size, 2 );
+          let nearests = [];
 
+          for( let array of options )
+            if( array.length > 0 )
+              if( array[0]['dist'] < min_length )
+                min_length = array[0]['dist'];
+
+          for( let array of options )
+            for( let option of array )
+              if( option['dist'] == min_length )
+                nearests.push( option );
+
+          let rand = Math.floor( Math.random() * nearests.length );
+          let grid = this.convert_index( nearests[rand]['index'] );
+          let domain = this.array.domain[grid.y][grid.x];
+          let concentration = 0;
+
+          this.add_substance( domain, nearests[rand]['phase'], genesis, concentration );
+        }
+      }
+
+      counter++;
+    }
+
+    stopper = this.const.size * 2;
+    counter = 0;
+    flag = true;
+
+    while( counter < stopper && flag ){
+      let genesis = 0;
+      let phases = [ 0, 1, 2 ];
+      let dist = Math.pow( this.const.size, 2 );
+      let options = [];
+
+      for( let phase of phases ){
+        let objs = [];
+
+        for( let domains of this.array.domain )
+          for( let domain of domains )
+            if( this.check_substance_inception( domain, phase, genesis ) ){
+              let grid_domain = this.convert_index( domain.const.index );
+              let flag = true;
+
+              for( let index_phase of this.array.phase[phase] )
+                if( flag ){
+                  let grid_phase = this.convert_index( index_phase );
+                  let d = this.path_between_domains( grid_domain, grid_phase, 1 ).length;
+                  let estrangement = this.const.estrangement.phase;
+
+                  if( d <= estrangement )
+                    flag = false;
+                }
+
+              if( flag ){
+                let path_length = Math.pow( this.const.size, 2 );
+
+                for( let descent of this.array.descent ){
+                  let grid_descent = this.convert_index( descent );
+                  let d = this.path_between_domains( grid_domain, grid_descent, 1 ).length;
+                  if( path_length > d )
+                    path_length = d;
+                  }
+
+               objs.push( {
+                 'index': domain.const.index,
+                 'dist': path_length,
+                 'phase': phase } );
+              }
+            }
+
+        options.push( objs );
+      }
+
+      let sum = 0;
+
+      for( let array of options ){
+        sum += array.length;
+        array = this.bubble_sort( array, 'dist' )
+      }
+
+      if( sum == 0 )
+        flag = false;
+      else{
         let min_length = Math.pow( this.const.size, 2 );
         let nearests = [];
 
@@ -592,6 +681,58 @@ class isle_h {
 
       counter++;
     }
+
+    return;
+  }
+
+  init_natural_mines(){
+    //
+    this.orient_footholds();
+
+    for( let domains of this.array.domain )
+      for( let domain of domains )
+        if( domain.data.substance != null ){
+          let options = [];
+          let flag = true;
+
+          for( let i = 0; i < domain.array.foothold.length; i++ )
+            if( flag ){
+              let grid_foothold = this.convert_index_foothold( domain.array.foothold[i] );
+              let foothold = this.array.foothold[grid_foothold.y][grid_foothold.x];
+
+              if( foothold.flag.owned ){
+                options = [ {
+                  domain: domain,
+                  foothold: foothold,
+                  sector: ( i + foothold.const.n / 2 ) % foothold.const.n,
+                  type: 'natural_mine' } ];
+
+                flag = false;
+              }
+              else
+                options.push( {
+                  domain: domain,
+                  foothold: foothold,
+                  sector: ( i + foothold.const.n / 2 ) % foothold.const.n,
+                  type: 'natural_mine' } );
+            }
+
+          let rand = Math.floor( Math.random() * options.length );
+          let obj = options[rand];
+          obj.foothold.data.demesne.erect( obj );
+          obj.sector = ( obj.sector + 1 + obj.foothold.const.n ) % obj.foothold.const.n;
+          obj.foothold.data.demesne.erect( obj );
+        }
+  }
+
+  orient_footholds(){
+    for( let domains of this.array.domain )
+      for( let domain of domains ){
+        let footholds = domain.array.foothold;
+        let oriented = [ footholds[2], footholds[5], footholds[4], footholds[3], footholds[0], footholds[1] ];
+
+        domain.array.foothold = oriented;
+      }
   }
 
   init(){
@@ -601,6 +742,7 @@ class isle_h {
     this.init_neighbors();
     this.init_domains();
     this.init_substances();
+    this.init_natural_mines();
   }
 
   path_between_domains( begin, end, type ){
@@ -718,7 +860,7 @@ class isle_h {
       let sign = 1;
 
       if( this.const.size < j )
-        sign =-1;
+        sign = -1;
 
       i -= current_length;
 
@@ -728,29 +870,28 @@ class isle_h {
         current_length += sign * step;
     }
 
-    return createVector( j, i );
+    return createVector( i, j );
   }
 
   convert_grid_foothold( grid ){
     if( grid == undefined )
       return null;
 
-    let index = grid.y;
+    let index = grid.x;
     let n = ( this.const.size + 1 ) * 2 + 1;
     let step = 2;
     let current_length = n;
     let j = 0;
 
-    while( j < grid.x ){
+    while( j < grid.y ){
       let sign = 1;
 
       if( this.const.size < j )
-        sign =-1;
+        sign = -1;
 
       index += current_length;
 
       j++;
-      console.log( j, index, sign )
       if( this.const.size != j - 1 )
         current_length += sign * step;
     }
@@ -775,7 +916,7 @@ class isle_h {
 
     if( phase != null )
       estrangement *= this.const.estrangement.phase;
-    if( genesis != null )
+    if( genesis != null && genesis != 0 )
       estrangement *= this.const.estrangement.genesis;
 
     let arounds = [ [ domain.const.index ]  ];
@@ -791,11 +932,12 @@ class isle_h {
           grid = this.convert_index( arounds[i][j] );
           grid.add( neighbor );
 
-          if( this.check_border( grid )  )
+          if( this.check_border( grid ) )
             if( this.array.domain[grid.y][grid.x].data.substance != null )
               if( !arounds[i + 1].includes( this.array.domain[grid.y][grid.x].const.index ) ){
                 let substance = this.array.domain[grid.y][grid.x].data.substance;
-                if(i <= this.const.estrangement.base )
+
+                if( i <= this.const.estrangement.base )
                   result = true;
 
                 if( result )
@@ -834,7 +976,8 @@ class isle_h {
       for( let pathway of this.array.pathway[0] )
         pathway.draw( offset );
 
-    if( this.var.current.layer == 0 ){
+    if( this.var.current.layer == 0 ||
+        this.var.current.layer == 2 ){
       for( let footholds of this.array.foothold )
         for( let foothold of footholds )
           foothold.draw( offset );
@@ -845,7 +988,7 @@ class isle_h {
 
     if( this.var.current.layer == 0 ||
         this.var.current.layer == 1 ||
-        this.var.current.layer == 3 )
+        this.var.current.layer == 2 )
       for( let domains of this.array.domain )
         for( let domain of domains )
           domain.draw( offset, this.var.current.layer );
