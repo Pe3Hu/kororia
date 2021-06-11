@@ -9,18 +9,30 @@ const MENU_LAYER = 99;
 const STROKE_WEIGHT = 0.5 * 13 / 8;
 
 let CANVAS_SIZE;
-let CANVAS_GRID;
 let FONT;
 let GAME_BOARD = null;
+let WORKSPACE;
+let WORKSPACE_GRID;
+let IMGS = [ [] ];
 
 function preload() {
+}
+function preload() {
   FONT = loadFont('src/fonts/Chunkfive.otf');
+
+  let images_count = 12;
+
+  for ( let i = 1; i < images_count; i++ ) {
+    IMGS[i - 1] = loadImage( "src/images/lux aeterna/LUX-"  + i + ".png" );
+  }
 }
 
 function setup() {
   CANVAS_SIZE = createVector( 1600, 960 );//800 600
-  CANVAS_GRID = createVector( Math.floor( CANVAS_SIZE.x / CELL_SIZE ), Math.floor( CANVAS_SIZE.y / CELL_SIZE ) );
   createCanvas( CANVAS_SIZE.x, CANVAS_SIZE.y );
+
+  WORKSPACE = createVector( CANVAS_SIZE.x - CELL_SIZE * 3.5, CANVAS_SIZE.y - CELL_SIZE );
+  WORKSPACE_GRID = createVector( Math.floor( WORKSPACE.x / CELL_SIZE ), Math.floor( WORKSPACE.y / CELL_SIZE ) );
 
   textFont( FONT );
   textSize( FONT_SIZE );

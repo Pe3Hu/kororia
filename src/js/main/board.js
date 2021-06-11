@@ -13,7 +13,7 @@ class board {
       }
     };
     this.var = {
-      layer: 2,
+      layer: 3,
       id: {
         button: 0,
         border: 0,
@@ -44,8 +44,6 @@ class board {
   }
 
   initGrid(){
-    this.const.grid.x = Math.floor( CANVAS_SIZE.x / CELL_SIZE );
-    this.const.grid.y = Math.floor( CANVAS_SIZE.y / CELL_SIZE );
   }
 
   initOffsets(){
@@ -72,20 +70,32 @@ class board {
     layer = 2;
     offset = createVector( CELL_SIZE * 0.5 + isle.const.r * 1, CELL_SIZE * 0.5 + isle.const.r * 3  );
     this.array.offset[layer].push( offset.copy() );
+
+
+    layer = 3;
+    offset = createVector( CELL_SIZE * 0.5, CELL_SIZE * 0.5 );
+    this.array.offset[layer].push( offset.copy() );
   }
 
   initLayers(){
     this.array.layer.push( new borderland() );
     this.array.layer.push( new jack() );
     this.array.layer.push( new borderland_h() );
+    //this.array.layer.push( new expanse() );
+    this.array.layer.push( new la_board_game() );
   }
 
   initBorders(){
     //
     let layer = MENU_LAYER;
-    let name = 'layerMenu';
-    let offset = createVector( CELL_SIZE * ( CANVAS_GRID.x - 2.25 ), CELL_SIZE * 0.5 );
+    let name = 'layer_menu';
+    let offset = createVector( CANVAS_SIZE.x - 2.5 * CELL_SIZE, CELL_SIZE * 0.5 );
     let size = createVector( CELL_SIZE * 2, CELL_SIZE * ( this.var.menu.button + 1 ) );
+    this.addBorder( layer, name, offset, size );
+
+    name = 'work_space';
+    offset = createVector( 0.5 * CELL_SIZE, CELL_SIZE * 0.5 );
+    size = createVector( WORKSPACE.x, WORKSPACE.y );
     this.addBorder( layer, name, offset, size );
 
     this.updateBorders();
@@ -120,17 +130,22 @@ class board {
     layer = MENU_LAYER;
     name = 'sanguo';
     type = 0;
-    vec = createVector( CELL_SIZE * ( CANVAS_GRID.x - 1.25 ), CELL_SIZE * ( 1.5 + type ) );
+    vec = createVector( CANVAS_SIZE.x - 1.5 * CELL_SIZE, CELL_SIZE * ( 1.5 + type ) );
     this.addButton( layer, name, type, vec.copy() );
 
     name = 'pango';
     type++;
-    vec = createVector( CELL_SIZE * ( CANVAS_GRID.x - 1.25 ), CELL_SIZE * ( 1.5 + type ) );
+    vec = createVector( CANVAS_SIZE.x - 1.5 * CELL_SIZE, CELL_SIZE * ( 1.5 + type ) );
     this.addButton( layer, name, type, vec.copy() );
 
     name = 'hikoi';
     type++;
-    vec = createVector( CELL_SIZE * ( CANVAS_GRID.x - 1.25 ), CELL_SIZE * ( 1.5 + type ) );
+    vec = createVector( CANVAS_SIZE.x - 1.5 * CELL_SIZE, CELL_SIZE * ( 1.5 + type ) );
+    this.addButton( layer, name, type, vec.copy() );
+
+    name = 'tukinga';
+    type++;
+    vec = createVector( CANVAS_SIZE.x - 1.5 * CELL_SIZE, CELL_SIZE * ( 1.5 + type ) );
     this.addButton( layer, name, type, vec.copy() );
 
     for( let i = 0; i < this.array.button.length; i++ )
