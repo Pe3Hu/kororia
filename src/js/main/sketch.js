@@ -4,10 +4,10 @@ const COLOR_MAX = 360;
 const COLOR_BG = COLOR_MAX / 2;
 const INFINITY = 999999999;
 const FRAME_RATE = 60;
-const FONT_SIZE = 10;
 const MENU_LAYER = 99;
 const STROKE_WEIGHT = 0.5 * 13 / 8;
 
+let FONT_SIZE = 10;
 let CANVAS_SIZE;
 let FONT;
 let GAME_BOARD = null;
@@ -20,11 +20,27 @@ function preload() {
 function preload() {
   FONT = loadFont('src/fonts/Chunkfive.otf');
 
+  let images_begin = 1;
   let images_count = 12;
 
-  for ( let i = 1; i < images_count; i++ ) {
-    IMGS[i - 1] = loadImage( "src/images/lux aeterna/LUX-"  + i + ".png" );
-  }
+  for ( let i = images_begin; i < images_begin + images_count; i++ )
+    IMGS[0][IMGS[0].length] = loadImage( "src/images/lux aeterna/LUX-"  + i + ".png" );
+
+  images_begin = 14;
+  images_count = 12;
+
+  for ( let i = images_begin; i < images_begin + images_count; i+=2 )
+    IMGS[0][IMGS[0].length] = loadImage( "src/images/lux aeterna/LUX-"  + i + ".png" );
+
+  images_begin = 26;
+  images_count = 4;
+
+  for ( let i = images_begin; i < images_begin + images_count; i+=2 )
+    IMGS[0][IMGS[0].length] = loadImage( "src/images/lux aeterna/LUX-"  + i + ".png" );
+
+  images_begin = 29;
+  IMGS[0][IMGS[0].length] = loadImage( "src/images/lux aeterna/LUX-"  + images_begin + ".png" );
+
 }
 
 function setup() {
